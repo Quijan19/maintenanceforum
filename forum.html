@@ -215,7 +215,6 @@
       <textarea id="issue" rows="4" placeholder="Describe the maintenance issue..." required></textarea>
       <button type="submit">Post Question</button>
     </form>
-
     <h2>Community Questions</h2>
     <div id="questionsContainer"></div>
   </main>
@@ -226,17 +225,8 @@
   </main>
 
   <footer>
-    <p>&copy; 2025 • Maintenance Forum : Qui' Jan Otis, Ian O'Toole, Mackenzie Goodrich</p>
+    <p>&copy; 2025 • Maintenance Forum</p>
   </footer>
-
-  <div id="chatContainer">
-    <header>💬 Chat Support</header>
-    <div id="chatMessages"></div>
-    <form id="chatForm">
-      <input id="chatInput" type="text" placeholder="Type a maintenance question..." required />
-      <button type="submit">Send</button>
-    </form>
-  </div>
 
   <script>
     const questionForm = document.getElementById('questionForm');
@@ -249,35 +239,50 @@
 
     const questions = [];
 
-    const equipmentTypes = ["Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator", "Boiler System", "Cooling Tower", "Hydraulic Press", "Elevator System", "Pump Station"];
-    const issues = ["is making unusual noises.", "won't start properly.", "is overheating.", "is leaking fluid.", "shows an error code.", "runs slower than expected.", "has inconsistent pressure.", "fails to shut down.", "has a broken valve.", "produces low output."];
-    const solutions = ["Check the oil level and refill if low.", "Inspect the filter and clean or replace it.", "Tighten all connections and inspect for air leaks.", "Reset the control system and observe behavior.", "Replace the worn-out belt or chain.", "Lubricate the moving parts with synthetic grease.", "Flush the coolant system and refill with fresh coolant.", "Test the motor and consider replacing it if underperforming.", "Ensure the power supply is stable and within tolerance.", "Calibrate the sensors using manufacturer instructions."];
+    const equipmentTypes = [
+      "Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator",
+      "Boiler System", "Cooling Tower", "Hydraulic Press", "Elevator System", "Pump Station"
+    ];
+
+    const issues = [
+      "is making unusual noises.", "won't start properly.", "is overheating.",
+      "is leaking fluid.", "shows an error code.", "runs slower than expected.",
+      "has inconsistent pressure.", "fails to shut down.", "has a broken valve.",
+      "produces low output."
+    ];
+
+    const solutions = [
+      "Check the oil level and refill if low.",
+      "Inspect the filter and clean or replace it.",
+      "Tighten all connections and inspect for air leaks.",
+      "Reset the control system and observe behavior.",
+      "Replace the worn-out belt or chain.",
+      "Lubricate the moving parts with synthetic grease.",
+      "Flush the coolant system and refill with fresh coolant.",
+      "Test the motor and consider replacing it if underperforming.",
+      "Ensure the power supply is stable and within tolerance.",
+      "Calibrate the sensors using manufacturer instructions."
+    ];
 
     function formatDate() {
       const now = new Date();
-      return now.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+      return now.toLocaleString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      });
     }
 
     function randomTimestamp() {
       const now = new Date();
       const past = new Date(now.getTime() - Math.floor(Math.random() * 180 * 24 * 60 * 60 * 1000));
-      return past.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+      return past.toLocaleString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      });
     }
 
     function randomManHours() {
       return (Math.floor(Math.random() * 4) + 1) + " hr" + (Math.random() < 0.3 ? "s" : "");
-    }
-
-    const randomQuestions = [];
-    for (let i = 0; i < 5; i++) {
-      randomQuestions.push({
-        issue: `${equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)]} ${issues[Math.floor(Math.random() * issues.length)]}`,
-        answer: solutions[Math.floor(Math.random() * solutions.length)],
-        timestamp: randomTimestamp(),
-        views: Math.floor(Math.random() * 951 + 50),
-        upvotes: Math.floor(Math.random() * 51),
-        downvotes: Math.floor(Math.random() * 21)
-      });
     }
 
     function renderQuestions() {
@@ -285,15 +290,13 @@
       questions.forEach((q) => {
         const questionCard = document.createElement('div');
         questionCard.className = 'question-card';
-        questionCard.innerHTML = `<div class="question-title">${q.equipment}</div>${q.partNumber ? `<div class="question-meta">Part Number: ${q.partNumber}</div>` : ''}<div class="question-meta">Posted on ${q.timestamp}</div><p>${q.issue}</p>`;
+        questionCard.innerHTML = `
+          <div class="question-title">${q.equipment}</div>
+          ${q.partNumber ? `<div class="question-meta">Part Number: ${q.partNumber}</div>` : ''}
+          <div class="question-meta">Posted on ${q.timestamp}</div>
+          <p>${q.issue}</p>
+        `;
         questionsContainer.appendChild(questionCard);
-      });
-
-      randomQuestions.forEach((q, index) => {
-        const card = document.createElement("div");
-        card.className = "question-card";
-        card.innerHTML = `<div class="question-title">${q.issue}</div><div class="question-meta">Posted on ${q.timestamp} • ${q.views} views</div><p><strong>Suggested Solution:</strong> ${q.answer}</p><div class="question-meta"><span class="vote" onclick="vote('up', ${index})">👍 <span id="up-${index}">${q.upvotes}</span></span><span class="vote" onclick="vote('down', ${index})">👎 <span id="down-${index}">${q.downvotes}</span></span></div>`;
-        questionsContainer.appendChild(card);
       });
     }
 
@@ -308,7 +311,12 @@
 
         const card = document.createElement('div');
         card.className = 'solution-card';
-        card.innerHTML = `<div class="solution-title">${equipment} ${issue}</div><div class="solution-meta">Reported on ${timestamp}</div><p><strong>Solution:</strong> ${solution}</p><p class="man-hours">Estimated Man-Hours: ${hours}</p>`;
+        card.innerHTML = `
+          <div class="solution-title">${equipment} ${issue}</div>
+          <div class="solution-meta">Reported on ${timestamp}</div>
+          <p><strong>Solution:</strong> ${solution}</p>
+          <p class="man-hours">Estimated Man-Hours: ${hours}</p>
+        `;
         solutionContainer.appendChild(card);
       }
     }
@@ -347,62 +355,14 @@
       }
     });
 
-    function vote(type, index) {
-      const upEl = document.getElementById(`up-${index}`);
-      const downEl = document.getElementById(`down-${index}`);
-      if (type === 'up') {
-        randomQuestions[index].upvotes++;
-        upEl.textContent = randomQuestions[index].upvotes;
-      } else {
-        randomQuestions[index].downvotes++;
-        downEl.textContent = randomQuestions[index].downvotes;
-      }
-    }
-
     function logout() {
       alert("You have been logged out.");
-      window.location.href = "/maintenance-help-forum/index.html";
-";
+      window.location.href = "/your-repo-name/index.html"; // Replace with your actual repo name
     }
 
-    const chatForm = document.getElementById('chatForm');
-    const chatInput = document.getElementById('chatInput');
-    const chatMessages = document.getElementById('chatMessages');
-
-    window.addEventListener('load', () => {
-      const welcomeMsg = document.createElement('div');
-      welcomeMsg.textContent = "Bot: Welcome to Maintenance Support. What maintenance or repair question can I help you find an answer to today?";
-      welcomeMsg.style.marginBottom = "0.5rem";
-      welcomeMsg.style.color = "#555";
-      chatMessages.appendChild(welcomeMsg);
-    });
-
-    chatForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const msg = chatInput.value.trim();
-      if (msg) {
-        const userMsg = document.createElement('div');
-        userMsg.textContent = "You: " + msg;
-        userMsg.style.marginBottom = "0.5rem";
-        chatMessages.appendChild(userMsg);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        chatInput.value = '';
-
-        setTimeout(() => {
-          const botMsg = document.createElement('div');
-          botMsg.textContent = "Bot: Searching for relevant solutions...";
-          botMsg.style.marginBottom = "0.5rem";
-          botMsg.style.color = "#555";
-          chatMessages.appendChild(botMsg);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-
-          const query = encodeURIComponent(msg);
-          window.open(`https://www.google.com/search?q=${query}`, '_blank');
-        }, 800);
-      }
-    });
-
-    renderQuestions();
+    window.onload = () => {
+      renderQuestions();
+    };
   </script>
 
 </body>
