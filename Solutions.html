@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Found Solutions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Baloo 2', sans-serif;
+      background-color: #ffffff;
+      margin: 0;
+      color: #111;
+    }
+
+    header {
+      background-color: #000;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .top-button {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      background-color: #00d084;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: #444;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .solution-card {
+      background: #f5f5f5;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 6px rgba(0,0,0,0.08);
+    }
+
+    .solution-title {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #111;
+    }
+
+    .solution-meta {
+      color: #666;
+      font-size: 0.9rem;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .man-hours {
+      font-weight: bold;
+      color: #00a57a;
+    }
+
+    footer {
+      background-color: #000;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="top-button">← Back</a>
+    <h1>Found Solutions</h1>
+    <p>Explore verified solutions with estimated time to complete</p>
+  </header>
+
+  <main>
+    <h2>10 Random Solutions</h2>
+    <div id="solutionContainer"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 • Maintenance Forum</p>
+  </footer>
+
+  <script>
+    const equipmentTypes = [
+      "Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator",
+      "Boiler System", "Cooling Tower", "Hydraulic Press", "Elevator System", "Pump Station"
+    ];
+
+    const issues = [
+      "is making unusual noises.", "won't start properly.", "is overheating.",
+      "is leaking fluid.", "shows an error code.", "runs slower than expected.",
+      "has inconsistent pressure.", "fails to shut down.", "has a broken valve.",
+      "produces low output."
+    ];
+
+    const solutions = [
+      "Check the oil level and refill if low.",
+      "Inspect the filter and clean or replace it.",
+      "Tighten all connections and inspect for air leaks.",
+      "Reset the control system and observe behavior.",
+      "Replace the worn-out belt or chain.",
+      "Lubricate the moving parts with synthetic grease.",
+      "Flush the coolant system and refill with fresh coolant.",
+      "Test the motor and consider replacing it if underperforming.",
+      "Ensure the power supply is stable and within tolerance.",
+      "Calibrate the sensors using manufacturer instructions."
+    ];
+
+    function randomManHours() {
+      return (Math.floor(Math.random() * 4) + 1) + " hr" + (Math.random() < 0.3 ? "s" : "");
+    }
+
+    function randomTimestamp() {
+      const now = new Date();
+      const past = new Date(now.getTime() - Math.floor(Math.random() * 180 * 24 * 60 * 60 * 1000));
+      return past.toLocaleString('en-US', {
+        month: 'long', day: 'numeric', year: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      });
+    }
+
+    const solutionContainer = document.getElementById('solutionContainer');
+
+    for (let i = 0; i < 10; i++) {
+      const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
+      const issue = issues[Math.floor(Math.random() * issues.length)];
+      const solution = solutions[Math.floor(Math.random() * solutions.length)];
+      const timestamp = randomTimestamp();
+      const hours = randomManHours();
+
+      const card = document.createElement('div');
+      card.className = 'solution-card';
+      card.innerHTML = `
+        <div class="solution-title">${equipment} ${issue}</div>
+        <div class="solution-meta">Reported on ${timestamp}</div>
+        <p><strong>Solution:</strong> ${solution}</p>
+        <p class="man-hours">Estimated Man-Hours: ${hours}</p>
+      `;
+      solutionContainer.appendChild(card);
+    }
+  </script>
+
+</body>
+</html>
