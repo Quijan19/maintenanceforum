@@ -166,16 +166,10 @@
     <p>&copy; 2025 • Maintenance Forum : Qui' Jan Otis, Ian O'Toole, Mackenzie Goodrich</p>
   </footer>
 
-  <!-- Load Supabase first -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-
-<!-- THEN run your code in a separate script tag WITH defer -->
-<script defer>
-  document.addEventListener("DOMContentLoaded", async () => {
-    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_FULL_ANON_KEY';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA'; // Replace with your full anon key
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+      const SUPABASE_ANON_KEY = 'YOUR_FULL_ANON_KEY_HERE'; // Replace with your full anon key
       const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const questionForm = document.getElementById('questionForm');
