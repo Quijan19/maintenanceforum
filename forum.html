@@ -34,13 +34,8 @@
       cursor: pointer;
     }
 
-    #foundSolutionsBtn {
-      right: 2rem;
-    }
-
-    #backButton {
-      right: 2rem;
-    }
+    #foundSolutionsBtn { right: 2rem; }
+    #backButton { right: 2rem; }
 
     .logout-btn {
       position: absolute;
@@ -96,7 +91,7 @@
       cursor: pointer;
     }
 
-    .question-card {
+    .question-card, .solution-card {
       background: #f5f5f5;
       border-radius: 10px;
       padding: 1.5rem;
@@ -104,13 +99,13 @@
       box-shadow: 0 0 6px rgba(0,0,0,0.08);
     }
 
-    .question-title {
+    .question-title, .solution-title {
       font-weight: bold;
       font-size: 1.2rem;
       color: #111;
     }
 
-    .question-meta {
+    .question-meta, .solution-meta {
       color: #666;
       font-size: 0.9rem;
       margin: 0.5rem 0 1rem;
@@ -164,30 +159,65 @@
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
-
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // your full key
       const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const questionForm = document.getElementById('questionForm');
       const questionsContainer = document.getElementById('questionsContainer');
+      const solutionContainer = document.getElementById('solutionContainer');
 
+      // 🔁 Random demo data
+      const equipmentTypes = ["Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator"];
+      const issues = ["is making unusual noises.", "won’t start.", "is overheating.", "is leaking.", "has low output."];
+      const solutions = ["Check oil level", "Clean filters", "Inspect connections", "Reset system", "Replace worn belt"];
+
+      const randomQuestions = Array.from({ length: 5 }, (_, i) => ({
+        equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
+        part_number: "PN-" + Math.floor(Math.random() * 9999),
+        issue: issues[Math.floor(Math.random() * issues.length)],
+        timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
+      }));
+
+      // 🧠 Load real + fake questions
+      async function loadQuestions() {
+        const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+
+        questionsContainer.innerHTML = '';
+        if (realData) {
+          realData.forEach(q => {
+            renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
+          });
+        }
+        randomQuestions.forEach(q => {
+          renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
+        });
+      }
+
+      function renderCard(equipment, partNumber, issue, timestamp) {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.innerHTML = `
+          <div class="question-title">${equipment}</div>
+          ${partNumber ? `<div class="question-meta">Part Number: ${partNumber}</div>` : ''}
+          <div class="question-meta">Posted on ${new Date(timestamp).toLocaleString()}</div>
+          <p>${issue}</p>
+        `;
+        questionsContainer.appendChild(card);
+      }
+
+      // ✍️ Submit new question to Supabase
       questionForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-
         const equipment = document.getElementById('equipmentName').value.trim();
         const partNumber = document.getElementById('partNumber').value.trim();
         const issue = document.getElementById('issue').value.trim();
 
         if (equipment && issue) {
-          const { data, error } = await client.from('questions').insert([{
-            equipment,
-            part_number: partNumber,
-            issue
-          }]);
+          const { data, error } = await client.from('questions').insert([{ equipment, part_number: partNumber, issue }]);
 
           if (error) {
-            console.error('Error saving question:', error.message);
-            alert('Failed to save question.');
+            alert('Error saving question.');
+            console.error(error.message);
           } else {
             alert('Question posted!');
             questionForm.reset();
@@ -196,26 +226,44 @@
         }
       });
 
-      async function loadQuestions() {
-        const { data, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+      // 🟢 Fake Found Solutions Tab
+      function renderSolutions() {
+        solutionContainer.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+          const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
+          const issue = issues[Math.floor(Math.random() * issues.length)];
+          const fix = solutions[Math.floor(Math.random() * solutions.length)];
+          const timestamp = new Date(Date.now() - Math.random() * 1e10).toLocaleString();
 
-        if (error) {
-          console.error('Error loading questions:', error.message);
-          return;
-        }
-
-        questionsContainer.innerHTML = '';
-        data.forEach(q => {
-          const card = document.createElement('div');
-          card.className = 'question-card';
+          const card = document.createElement("div");
+          card.className = "solution-card";
           card.innerHTML = `
-            <div class="question-title">${q.equipment}</div>
-            ${q.part_number ? `<div class="question-meta">Part Number: ${q.part_number}</div>` : ''}
-            <div class="question-meta">Posted on ${new Date(q.timestamp).toLocaleString()}</div>
-            <p>${q.issue}</p>
+            <div class="solution-title">${equipment} ${issue}</div>
+            <div class="solution-meta">Reported on ${timestamp}</div>
+            <p><strong>Solution:</strong> ${fix}</p>
           `;
-          questionsContainer.appendChild(card);
-        });
+          solutionContainer.appendChild(card);
+        }
+      }
+
+      function toggleView() {
+        const qa = document.getElementById("qaSection");
+        const sol = document.getElementById("solutionsSection");
+        const back = document.getElementById("backButton");
+        const found = document.getElementById("foundSolutionsBtn");
+
+        if (qa.classList.contains("hidden")) {
+          qa.classList.remove("hidden");
+          sol.classList.add("hidden");
+          back.classList.add("hidden");
+          found.classList.remove("hidden");
+        } else {
+          qa.classList.add("hidden");
+          sol.classList.remove("hidden");
+          back.classList.remove("hidden");
+          found.classList.add("hidden");
+          renderSolutions();
+        }
       }
 
       function logout() {
@@ -223,45 +271,6 @@
         window.location.href = "index.html";
       }
 
-      function toggleView() {
-        const qaSection = document.getElementById('qaSection');
-        const solutionsSection = document.getElementById('solutionsSection');
-        const foundBtn = document.getElementById('foundSolutionsBtn');
-        const backBtn = document.getElementById('backButton');
-
-        if (qaSection.classList.contains("hidden")) {
-          qaSection.classList.remove("hidden");
-          solutionsSection.classList.add("hidden");
-          foundBtn.classList.remove("hidden");
-          backBtn.classList.add("hidden");
-        } else {
-          qaSection.classList.add("hidden");
-          solutionsSection.classList.remove("hidden");
-          foundBtn.classList.add("hidden");
-          backBtn.classList.remove("hidden");
-          renderSolutions();
-        }
-      }
-
-      function renderSolutions() {
-        const solutionContainer = document.getElementById("solutionContainer");
-        solutionContainer.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
-          const equipment = ["HVAC", "Pump", "Compressor", "Motor"][Math.floor(Math.random() * 4)];
-          const issue = ["is making noise", "won’t start", "is overheating", "is leaking"][Math.floor(Math.random() * 4)];
-          const fix = ["Check belts", "Replace filter", "Tighten bolts", "Add lubricant"][Math.floor(Math.random() * 4)];
-          const card = document.createElement("div");
-          card.className = "question-card";
-          card.innerHTML = `
-            <div class="question-title">${equipment} ${issue}</div>
-            <div class="question-meta">Suggested Fix:</div>
-            <p>${fix}</p>
-          `;
-          solutionContainer.appendChild(card);
-        }
-      }
-
-      // Initial load
       loadQuestions();
     });
   </script>
