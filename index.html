@@ -5,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Maintenance Help Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <style>
-    /* [styling same as before] */
     body {
       font-family: 'Baloo 2', sans-serif;
       margin: 0;
       padding: 0;
     }
-
     .login-container {
       background-color: #f9f9f9;
       height: 100vh;
@@ -21,7 +19,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .login-box {
       background: #fff;
       padding: 2rem;
@@ -31,11 +28,9 @@
       max-width: 400px;
       text-align: center;
     }
-
     .login-box h2 {
       margin-bottom: 1.5rem;
     }
-
     .login-box input {
       width: 100%;
       padding: 0.8rem;
@@ -43,7 +38,6 @@
       border: 1px solid #ccc;
       border-radius: 8px;
     }
-
     .login-box button {
       background-color: #00d084;
       color: white;
@@ -53,16 +47,13 @@
       cursor: pointer;
       font-size: 1rem;
     }
-
     .hidden {
       display: none;
     }
-
     .error-message {
       color: red;
       margin-top: 1rem;
     }
-
     .logout-btn {
       position: absolute;
       top: 1rem;
@@ -76,7 +67,6 @@
       font-size: 1rem;
       z-index: 999;
     }
-
     .search-bar {
       position: absolute;
       top: 1.5rem;
@@ -84,7 +74,6 @@
       display: flex;
       gap: 0.5rem;
     }
-
     .search-bar input {
       padding: 0.6rem 1rem;
       border-radius: 8px;
@@ -92,7 +81,6 @@
       font-size: 1rem;
       width: 200px;
     }
-
     .search-bar button {
       background-color: #00d084;
       color: white;
@@ -101,7 +89,6 @@
       padding: 0.6rem 1rem;
       cursor: pointer;
     }
-
     header {
       background-color: #000;
       color: #fff;
@@ -109,19 +96,16 @@
       position: relative;
       text-align: center;
     }
-
     h1 {
       font-size: 3rem;
       font-weight: 900;
       margin-bottom: 1rem;
     }
-
     h2 {
       font-size: 2rem;
       color: #666;
       margin-bottom: 2rem;
     }
-
     .cta-button {
       background-color: #00d084;
       border: none;
@@ -132,7 +116,6 @@
       cursor: pointer;
       text-decoration: none;
     }
-
     .features {
       display: flex;
       justify-content: center;
@@ -141,7 +124,6 @@
       max-width: 1000px;
       flex-wrap: wrap;
     }
-
     .feature {
       background: #f5f5f5;
       padding: 1rem;
@@ -150,13 +132,11 @@
       text-align: left;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
     }
-
     section {
       margin: 4rem auto;
       max-width: 500px;
       text-align: center;
     }
-
     footer {
       background-color: #000;
       color: white;
@@ -168,9 +148,9 @@
 </head>
 <body>
 
-  <!-- Login -->
+  <!-- Login Section -->
   <div class="login-container" id="loginBox">
-    <form class="login-box" id="loginForm" onsubmit="handleLogin(event)">
+    <form class="login-box" id="loginForm">
       <h2>Login to Maintenance Forum</h2>
       <input type="email" id="email" placeholder="Email" required />
       <input type="password" id="password" placeholder="Password" required />
@@ -213,43 +193,48 @@
     </footer>
   </div>
 
+  <!-- ✅ JavaScript for Supabase login -->
   <script>
-    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
+    document.addEventListener("DOMContentLoaded", async () => {
+      const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Keep user logged in if session is still active
-    supabase.auth.getSession().then(({ data: { session } }) => {
+      // Check existing session
+      const { data: { session } } = await client.auth.getSession();
       if (session) {
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("mainContent").classList.remove("hidden");
       }
+
+      // Login form handler
+      document.getElementById("loginForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const { data, error } = await client.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          document.getElementById("loginError").textContent = error.message;
+          document.getElementById("loginError").style.display = "block";
+        } else {
+          document.getElementById("loginBox").style.display = "none";
+          document.getElementById("mainContent").classList.remove("hidden");
+          document.getElementById("loginError").style.display = "none";
+        }
+      });
+
+      // Logout function
+      window.logout = async function() {
+        await client.auth.signOut();
+        document.getElementById("mainContent").classList.add("hidden");
+        document.getElementById("loginBox").style.display = "flex";
+        document.getElementById("email").value = '';
+        document.getElementById("password").value = '';
+      };
     });
-
-    async function handleLogin(event) {
-      event.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        document.getElementById("loginError").style.display = "block";
-      } else {
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("mainContent").classList.remove("hidden");
-        document.getElementById("loginError").style.display = "none";
-      }
-    }
-
-    async function logout() {
-      await supabase.auth.signOut();
-      document.getElementById("mainContent").classList.add("hidden");
-      document.getElementById("loginBox").style.display = "flex";
-      document.getElementById("email").value = '';
-      document.getElementById("password").value = '';
-    }
   </script>
 </body>
 </html>
