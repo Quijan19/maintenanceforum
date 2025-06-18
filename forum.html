@@ -5,274 +5,218 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Maintenance Q&A Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
-      background-color: #ffffff;
       margin: 0;
+      background: #fff;
       color: #111;
     }
 
-    header {
-      background-color: #000;
+    header, footer {
+      background: #000;
       color: white;
-      padding: 2rem;
       text-align: center;
-      position: relative;
-    }
-
-    .top-button {
-      position: absolute;
-      top: 2rem;
-      background-color: #00d084;
-      color: white;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #foundSolutionsBtn { right: 2rem; }
-    #backButton { right: 2rem; }
-
-    .logout-btn {
-      position: absolute;
-      top: 2rem;
-      left: 2rem;
-      background-color: #d00000;
-      color: white;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      z-index: 999;
-    }
-
-    main {
-      max-width: 1000px;
-      margin: 2rem auto;
       padding: 1rem;
     }
 
-    h2 {
-      font-size: 2rem;
-      color: #444;
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    form {
-      background-color: #f5f5f5;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.05);
-      margin-bottom: 2rem;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-
-    button {
-      background-color: #00d084;
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .question-card, .solution-card {
+    .question-card {
       background: #f5f5f5;
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 0 6px rgba(0,0,0,0.08);
-    }
-
-    .question-title, .solution-title {
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #111;
-    }
-
-    .question-meta, .solution-meta {
-      color: #666;
-      font-size: 0.9rem;
-      margin: 0.5rem 0 1rem;
-    }
-
-    footer {
-      background-color: #000;
-      color: white;
       padding: 1rem;
-      text-align: center;
-      margin-top: 4rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      cursor: pointer;
     }
 
     .hidden {
       display: none;
     }
+
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 1rem;
+    }
+
+    button {
+      background: #00d084;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+
+    .solution-section,
+    .detail-section {
+      background: #f5f5f5;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+
+    form textarea {
+      width: 100%;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Maintenance Q&A Forum</h1>
-    <p>Post your questions. View community solutions.</p>
-    <button class="logout-btn" onclick="logout()">Logout</button>
-    <button id="foundSolutionsBtn" class="top-button" onclick="toggleView()">Found Solutions</button>
-    <button id="backButton" class="top-button hidden" onclick="toggleView()">← Back</button>
-  </header>
+<header>
+  <h1>Maintenance Forum</h1>
+</header>
 
-  <main id="qaSection">
-    <h2>Ask a New Question</h2>
-    <form id="questionForm">
-      <input type="text" id="equipmentName" placeholder="Equipment Name (e.g., Generator)" required />
-      <input type="text" id="partNumber" placeholder="Part Number (e.g., PN-4580A)" />
-      <textarea id="issue" rows="4" placeholder="Describe the maintenance issue..." required></textarea>
-      <button type="submit">Post Question</button>
+<!-- Community Questions -->
+<main id="questionList">
+  <h2>Community Questions</h2>
+  <div id="questionsContainer"></div>
+</main>
+
+<!-- Selected Question View -->
+<main id="questionDetail" class="hidden">
+  <h2>Proposed Solution</h2>
+  <div class="detail-section" id="selectedQuestion"></div>
+  <div>
+    <button onclick="showReviewSolution()">Review Solutions</button>
+    <button onclick="togglePostSolutionForm()">Post a Solution</button>
+    <button onclick="returnToForum()">Return to Forum</button>
+  </div>
+  <div class="solution-section hidden" id="solutionOutput"></div>
+
+  <!-- Post a Solution Form -->
+  <div id="solutionFormContainer" class="hidden">
+    <h3>Submit Your Solution</h3>
+    <form id="solutionForm" onsubmit="submitSolution(event)">
+      <textarea id="solutionText" rows="4" placeholder="Describe your solution..." required></textarea>
+      <button type="submit">Submit Solution</button>
     </form>
+    <p id="solutionSuccessMsg" style="color: green; display: none;">Solution submitted successfully!</p>
+  </div>
+</main>
 
-    <h2>Community Questions</h2>
-    <div id="questionsContainer"></div>
-  </main>
+<footer>
+  <p>&copy; 2025 Maintenance Forum</p>
+</footer>
 
-  <main id="solutionsSection" class="hidden">
-    <h2>Found Solutions</h2>
-    <div id="solutionContainer"></div>
-  </main>
+<script>
+  // Supabase setup
+  const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  <footer>
-    <p>&copy; 2025 • Maintenance Forum : Qui' Jan Otis, Ian O'Toole, Mackenzie Goodrich</p>
-  </footer>
+  const questionsContainer = document.getElementById('questionsContainer');
+  const questionList = document.getElementById('questionList');
+  const questionDetail = document.getElementById('questionDetail');
+  const selectedQuestion = document.getElementById('selectedQuestion');
+  const solutionOutput = document.getElementById('solutionOutput');
+  const solutionFormContainer = document.getElementById('solutionFormContainer');
+  const solutionSuccessMsg = document.getElementById('solutionSuccessMsg');
+  const solutionText = document.getElementById('solutionText');
 
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // your full key
-      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const demoSolutions = [
+    "Check oil levels and refill.",
+    "Inspect and replace filters.",
+    "Tighten loose bolts and screws.",
+    "Reset the control panel.",
+    "Check for blown fuses or breakers."
+  ];
 
-      const questionForm = document.getElementById('questionForm');
-      const questionsContainer = document.getElementById('questionsContainer');
-      const solutionContainer = document.getElementById('solutionContainer');
+  let currentQuestion = null;
 
-      // 🔁 Random demo data
-      const equipmentTypes = ["Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator"];
-      const issues = ["is making unusual noises.", "won’t start.", "is overheating.", "is leaking.", "has low output."];
-      const solutions = ["Check oil level", "Clean filters", "Inspect connections", "Reset system", "Replace worn belt"];
+  async function loadQuestions() {
+    const { data, error } = await supabase
+      .from('questions')
+      .select('*')
+      .order('timestamp', { ascending: false });
 
-      const randomQuestions = Array.from({ length: 5 }, (_, i) => ({
-        equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
-        part_number: "PN-" + Math.floor(Math.random() * 9999),
-        issue: issues[Math.floor(Math.random() * issues.length)],
-        timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
-      }));
+    if (error) {
+      alert("Error loading questions");
+      return;
+    }
 
-      // 🧠 Load real + fake questions
-      async function loadQuestions() {
-        const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+    if (!data || data.length === 0) {
+      const demo = [
+        { equipment: "Generator", issue: "Won't start", part_number: "PN-1234" },
+        { equipment: "Air Compressor", issue: "Low pressure output", part_number: "AC-998" },
+        { equipment: "Forklift", issue: "Hydraulic leak" },
+      ];
+      renderQuestions(demo);
+    } else {
+      renderQuestions(data);
+    }
+  }
 
-        questionsContainer.innerHTML = '';
-        if (realData) {
-          realData.forEach(q => {
-            renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
-          });
-        }
-        randomQuestions.forEach(q => {
-          renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
-        });
-      }
-
-      function renderCard(equipment, partNumber, issue, timestamp) {
-        const card = document.createElement('div');
-        card.className = 'question-card';
-        card.innerHTML = `
-          <div class="question-title">${equipment}</div>
-          ${partNumber ? `<div class="question-meta">Part Number: ${partNumber}</div>` : ''}
-          <div class="question-meta">Posted on ${new Date(timestamp).toLocaleString()}</div>
-          <p>${issue}</p>
-        `;
-        questionsContainer.appendChild(card);
-      }
-
-      // ✍️ Submit new question to Supabase
-      questionForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const equipment = document.getElementById('equipmentName').value.trim();
-        const partNumber = document.getElementById('partNumber').value.trim();
-        const issue = document.getElementById('issue').value.trim();
-
-        if (equipment && issue) {
-          const { data, error } = await client.from('questions').insert([{ equipment, part_number: partNumber, issue }]);
-
-          if (error) {
-            alert('Error saving question.');
-            console.error(error.message);
-          } else {
-            alert('Question posted!');
-            questionForm.reset();
-            loadQuestions();
-          }
-        }
-      });
-
-      // 🟢 Fake Found Solutions Tab
-      function renderSolutions() {
-        solutionContainer.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
-          const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
-          const issue = issues[Math.floor(Math.random() * issues.length)];
-          const fix = solutions[Math.floor(Math.random() * solutions.length)];
-          const timestamp = new Date(Date.now() - Math.random() * 1e10).toLocaleString();
-
-          const card = document.createElement("div");
-          card.className = "solution-card";
-          card.innerHTML = `
-            <div class="solution-title">${equipment} ${issue}</div>
-            <div class="solution-meta">Reported on ${timestamp}</div>
-            <p><strong>Solution:</strong> ${fix}</p>
-          `;
-          solutionContainer.appendChild(card);
-        }
-      }
-
-      function toggleView() {
-        const qa = document.getElementById("qaSection");
-        const sol = document.getElementById("solutionsSection");
-        const back = document.getElementById("backButton");
-        const found = document.getElementById("foundSolutionsBtn");
-
-        if (qa.classList.contains("hidden")) {
-          qa.classList.remove("hidden");
-          sol.classList.add("hidden");
-          back.classList.add("hidden");
-          found.classList.remove("hidden");
-        } else {
-          qa.classList.add("hidden");
-          sol.classList.remove("hidden");
-          back.classList.remove("hidden");
-          found.classList.add("hidden");
-          renderSolutions();
-        }
-      }
-
-      function logout() {
-        alert("You have been logged out.");
-        window.location.href = "index.html";
-      }
-
-      loadQuestions();
+  function renderQuestions(questionListData) {
+    questionsContainer.innerHTML = '';
+    questionListData.forEach(q => {
+      const div = document.createElement('div');
+      div.className = 'question-card';
+      div.textContent = `${q.equipment}: ${q.issue}`;
+      div.onclick = () => showQuestionDetail(q);
+      questionsContainer.appendChild(div);
     });
-  </script>
+  }
+
+  function showQuestionDetail(q) {
+    currentQuestion = q;
+    selectedQuestion.innerHTML = `
+      <h3>${q.equipment}</h3>
+      <p><strong>Issue:</strong> ${q.issue}</p>
+      ${q.part_number ? `<p><strong>Part Number:</strong> ${q.part_number}</p>` : ''}
+    `;
+    questionList.classList.add('hidden');
+    questionDetail.classList.remove('hidden');
+    solutionOutput.classList.add('hidden');
+    solutionFormContainer.classList.add('hidden');
+    solutionSuccessMsg.style.display = 'none';
+  }
+
+  function showReviewSolution() {
+    const solution = demoSolutions[Math.floor(Math.random() * demoSolutions.length)];
+    solutionOutput.innerHTML = `<p><strong>Suggested Fix:</strong> ${solution}</p>`;
+    solutionOutput.classList.remove('hidden');
+  }
+
+  function returnToForum() {
+    questionList.classList.remove('hidden');
+    questionDetail.classList.add('hidden');
+  }
+
+  function togglePostSolutionForm() {
+    solutionFormContainer.classList.toggle('hidden');
+    solutionSuccessMsg.style.display = 'none';
+  }
+
+  async function submitSolution(event) {
+    event.preventDefault();
+    const content = solutionText.value.trim();
+    if (!content || !currentQuestion?.id) return;
+
+    const { error } = await supabase.from('solutions').insert([
+      {
+        question_id: currentQuestion.id,
+        content,
+        submitted_at: new Date().toISOString()
+      }
+    ]);
+
+    if (error) {
+      alert('Error submitting solution');
+      return;
+    }
+
+    solutionText.value = '';
+    solutionSuccessMsg.style.display = 'block';
+  }
+
+  loadQuestions();
+</script>
+
 </body>
 </html>
