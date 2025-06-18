@@ -103,20 +103,38 @@ const preloadedSolutions = [
       }
     });
 
-    function renderSolutions() {
-      solutionContainer.innerHTML = '';
+   function renderSolutions() {
+  solutionContainer.innerHTML = '';
 
-      // Add preloaded solutions
-      preloadedSolutions.forEach(s => {
-        const card = document.createElement("div");
-        card.className = "solution-card";
-        card.innerHTML = `
-          <div class="solution-title">${s.equipment} ${s.issue}</div>
-          <div class="solution-meta">Reported on ${new Date(s.timestamp).toLocaleString()}</div>
-          <p><strong>Solution:</strong> ${s.solution}</p>
-        `;
-        solutionContainer.appendChild(card);
-      });
+  // Add preloaded solutions
+  preloadedSolutions.forEach(s => {
+    const card = document.createElement("div");
+    card.className = "solution-card";
+    card.innerHTML = `
+      <div class="solution-title">${s.equipment} ${s.issue}</div>
+      <div class="solution-meta">Reported on ${new Date(s.timestamp).toLocaleString()}</div>
+      <p><strong>Solution:</strong> ${s.solution}</p>
+    `;
+    solutionContainer.appendChild(card);
+  });
+
+  // Add random fake solutions
+  for (let i = 0; i < 5; i++) {
+    const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
+    const issue = issues[Math.floor(Math.random() * issues.length)];
+    const fix = solutions[Math.floor(Math.random() * solutions.length)];
+    const timestamp = new Date(Date.now() - Math.random() * 1e10).toLocaleString();
+
+    const card = document.createElement("div");
+    card.className = "solution-card";
+    card.innerHTML = `
+      <div class="solution-title">${equipment} ${issue}</div>
+      <div class="solution-meta">Reported on ${timestamp}</div>
+      <p><strong>Solution:</strong> ${fix}</p>
+    `;
+    solutionContainer.appendChild(card);
+  }
+}
 
       // Add random solutions
       for (let i = 0; i < 5; i++) {
