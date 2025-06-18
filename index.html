@@ -234,6 +234,15 @@
     const SUPABASE_URL = 'https://your-project-id.supabase.co'; // <-- replace with your Supabase URL
     const SUPABASE_ANON_KEY = 'your-anon-key'; // <-- replace with your Supabase anon key
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Keep user logged in if session is active
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("mainContent").classList.remove("hidden");
+  }
+});
+
 
     async function handleLogin(event) {
       event.preventDefault();
