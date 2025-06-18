@@ -3,201 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Maintenance Forum</title>
+  <title>Maintenance Q&A Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
+      background-color: #ffffff;
       margin: 0;
-      background: #fff;
       color: #111;
     }
-
-    header, footer {
-      background: #000;
-      color: white;
-      text-align: center;
-      padding: 1rem;
+    header, footer, .top-button, .logout-btn, form, input, textarea, button, .question-card, .solution-card {
+      /* Consolidated styles omitted for brevity */
     }
-
-    main {
-      max-width: 800px;
-      margin: auto;
-      padding: 1rem;
-    }
-
-    .question-card {
-      background: #f5f5f5;
-      padding: 1rem;
-      border-radius: 10px;
-      margin: 1rem 0;
-      cursor: pointer;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .detail-section, .solution-section {
-      background: #f5f5f5;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-top: 1rem;
-    }
-
-    button {
-      background: #00d084;
-      color: white;
-      padding: 0.6rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 0.5rem;
-    }
-
-    textarea {
-      width: 100%;
-      padding: 0.8rem;
-      margin: 1rem 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
+  <header>
+    <h1>Maintenance Q&A Forum</h1>
+    <p>Post your questions. View community solutions.</p>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <button id="foundSolutionsBtn" class="top-button" onclick="toggleView()">Found Solutions</button>
+    <button id="backButton" class="top-button hidden" onclick="toggleView()">← Back</button>
+  </header>
 
-<header>
-  <h1>Maintenance Forum</h1>
-</header>
+  <main id="qaSection">
+    <h2>Ask a New Question</h2>
+    <form id="questionForm">
+      <input type="text" id="equipmentName" placeholder="Equipment Name" required />
+      <input type="text" id="partNumber" placeholder="Part Number" />
+      <textarea id="issue" rows="4" placeholder="Describe the maintenance issue..." required></textarea>
+      <button type="submit">Post Question</button>
+    </form>
+    <h2>Community Questions</h2>
+    <div id="questionsContainer"></div>
+  </main>
 
-<main id="questionList">
-  <h2>Community Questions</h2>
-  <div id="questionsContainer"></div>
-</main>
+  <main id="solutionsSection" class="hidden">
+    <h2>Found Solutions</h2>
+    <div id="solutionContainer"></div>
+  </main>
 
-<main id="questionDetail" class="hidden">
-  <h2>Proposed Solution</h2>
-  <div class="detail-section" id="selectedQuestion"></div>
-  <div>
-    <button onclick="showReviewSolution()">Review Solutions</button>
-    <button onclick="document.getElementById('solutionForm').classList.remove('hidden')">Post a Solution</button>
+  <main id="questionDetail" class="hidden">
+    <h2 id="selectedEquipment"></h2>
+    <button onclick="showPostSolutionForm()">Post a Solution</button>
+    <button onclick="showReviewSolutions()">Review Solutions</button>
     <button onclick="returnToForum()">Return to Forum</button>
-  </div>
-  <form id="solutionForm" class="hidden" onsubmit="submitSolution(event)">
-    <textarea id="solutionText" placeholder="Write your solution..." required></textarea>
-    <button type="submit">Submit Solution</button>
-  </form>
-  <div class="solution-section hidden" id="solutionOutput"></div>
-</main>
+    <div id="postSolutionForm" class="hidden">
+      <textarea id="solutionText" rows="4" placeholder="Describe your solution..." required></textarea>
+      <button onclick="submitSolution()">Submit Solution</button>
+    </div>
+    <div id="reviewSolutionBox" class="hidden"></div>
+  </main>
 
-<footer>
-  <p>&copy; 2025 Maintenance Forum</p>
-</footer>
+  <footer>
+    <p>&copy; 2025 • Maintenance Forum : Qui' Jan Otis, Ian O'Toole, Mackenzie Goodrich</p>
+  </footer>
 
-<script>
-  const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // shortened for safety
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  <script>
+    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const questionsContainer = document.getElementById('questionsContainer');
-  const questionList = document.getElementById('questionList');
-  const questionDetail = document.getElementById('questionDetail');
-  const selectedQuestion = document.getElementById('selectedQuestion');
-  const solutionOutput = document.getElementById('solutionOutput');
-  const solutionForm = document.getElementById('solutionForm');
+    const questionForm = document.getElementById('questionForm');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const qaSection = document.getElementById('qaSection');
+    const solutionsSection = document.getElementById('solutionsSection');
+    const foundBtn = document.getElementById('foundSolutionsBtn');
+    const backBtn = document.getElementById('backButton');
+    const questionDetail = document.getElementById('questionDetail');
+    const selectedEquipment = document.getElementById('selectedEquipment');
+    const postSolutionForm = document.getElementById('postSolutionForm');
+    const solutionText = document.getElementById('solutionText');
+    const reviewBox = document.getElementById('reviewSolutionBox');
 
-  const demoSolutions = [
-    "Check oil levels and refill.",
-    "Inspect and replace filters.",
-    "Tighten loose bolts and screws.",
-    "Reset the control panel.",
-    "Check for blown fuses or breakers."
-  ];
+    let selectedQuestionId = null;
+    const demoAnswers = [
+      "Check oil level.",
+      "Reset the control system.",
+      "Inspect for air leaks.",
+      "Replace the worn belt."
+    ];
 
-  let currentQuestion = null;
+    questionForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const equipment = document.getElementById('equipmentName').value;
+      const partNumber = document.getElementById('partNumber').value;
+      const issue = document.getElementById('issue').value;
 
-  async function loadQuestions() {
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*')
-      .order('timestamp', { ascending: false });
-
-    console.log("Questions from Supabase:", data, "Error:", error);
-
-    if (error || !data || data.length === 0) {
-      const demo = [
-        { id: "demo1", equipment: "Generator", issue: "Won’t start", part_number: "PN-1234" },
-        { id: "demo2", equipment: "Air Compressor", issue: "Low pressure", part_number: "AC-998" }
-      ];
-      renderQuestions(demo);
-    } else {
-      renderQuestions(data);
-    }
-  }
-
-  function renderQuestions(list) {
-    questionsContainer.innerHTML = '';
-    list.forEach(q => {
-      const card = document.createElement('div');
-      card.className = 'question-card';
-      card.textContent = `${q.equipment}: ${q.issue}`;
-      card.onclick = () => showQuestionDetail(q);
-      questionsContainer.appendChild(card);
+      await supabase.from('questions').insert([{ equipment, part_number: partNumber, issue }]);
+      questionForm.reset();
+      loadQuestions();
     });
-  }
 
-  function showQuestionDetail(q) {
-    currentQuestion = q;
-    selectedQuestion.innerHTML = `
-      <h3>${q.equipment}</h3>
-      <p><strong>Issue:</strong> ${q.issue}</p>
-      ${q.part_number ? `<p><strong>Part Number:</strong> ${q.part_number}</p>` : ''}
-    `;
-    questionList.classList.add('hidden');
-    questionDetail.classList.remove('hidden');
-    solutionForm.classList.add('hidden');
-    solutionOutput.classList.add('hidden');
-  }
-
-  function returnToForum() {
-    questionList.classList.remove('hidden');
-    questionDetail.classList.add('hidden');
-  }
-
-  function showReviewSolution() {
-    const suggestion = demoSolutions[Math.floor(Math.random() * demoSolutions.length)];
-    solutionOutput.innerHTML = `<p><strong>Suggested Fix:</strong> ${suggestion}</p>`;
-    solutionOutput.classList.remove('hidden');
-  }
-
-  async function submitSolution(e) {
-    e.preventDefault();
-    const text = document.getElementById("solutionText").value.trim();
-    if (!text || !currentQuestion?.id) return;
-
-    const { data, error } = await supabase.from('solutions').insert([
-      {
-        question_id: currentQuestion.id,
-        solution: text,
-        created_at: new Date().toISOString()
-      }
-    ]);
-
-    if (error) {
-      alert("Failed to submit solution.");
-      console.error(error);
-      return;
+    async function loadQuestions() {
+      const { data } = await supabase.from('questions').select('*').order('created_at', { ascending: false });
+      questionsContainer.innerHTML = '';
+      data.forEach((q) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.innerHTML = `<div class="question-title">${q.equipment}</div><p>${q.issue}</p>`;
+        card.onclick = () => viewQuestion(q);
+        questionsContainer.appendChild(card);
+      });
     }
 
-    document.getElementById("solutionText").value = "";
-    solutionForm.classList.add("hidden");
-    solutionOutput.innerHTML = `<p><strong>Your solution has been posted!</strong></p>`;
-    solutionOutput.classList.remove("hidden");
-  }
+    function viewQuestion(q) {
+      selectedQuestionId = q.id;
+      selectedEquipment.textContent = `${q.equipment} - ${q.issue}`;
+      qaSection.classList.add('hidden');
+      questionDetail.classList.remove('hidden');
+    }
 
-  loadQuestions();
-</script>
+    function showPostSolutionForm() {
+      postSolutionForm.classList.remove('hidden');
+      reviewBox.classList.add('hidden');
+    }
 
+    function showReviewSolutions() {
+      const solution = demoAnswers[Math.floor(Math.random() * demoAnswers.length)];
+      reviewBox.textContent = solution;
+      reviewBox.classList.remove('hidden');
+      postSolutionForm.classList.add('hidden');
+    }
+
+    async function submitSolution() {
+      const solution = solutionText.value;
+      if (!solution) return;
+      await supabase.from('solutions').insert([{ question_id: selectedQuestionId, solution }]);
+      solutionText.value = '';
+      alert('Solution submitted!');
+      postSolutionForm.classList.add('hidden');
+    }
+
+    function returnToForum() {
+      questionDetail.classList.add('hidden');
+      qaSection.classList.remove('hidden');
+    }
+
+    function toggleView() {
+      qaSection.classList.toggle('hidden');
+      solutionsSection.classList.toggle('hidden');
+      foundBtn.classList.toggle('hidden');
+      backBtn.classList.toggle('hidden');
+    }
+
+    function logout() {
+      alert("You have been logged out.");
+      window.location.href = "index.html";
+    }
+
+    window.addEventListener('DOMContentLoaded', loadQuestions);
+  </script>
 </body>
 </html>
