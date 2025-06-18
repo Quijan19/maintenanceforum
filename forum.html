@@ -242,16 +242,24 @@
       });
     }
 
-    function renderCard(equipment, partNumber, issue, timestamp) {
-      const card = document.createElement('div');
-      card.className = 'question-card';
-      card.innerHTML = `
-        <div class="question-title">${equipment}</div>
-        ${partNumber ? `<div class="question-meta">Part Number: ${partNumber}</div>` : ''}
-        <div class="question-meta">Posted on ${new Date(timestamp).toLocaleString()}</div>
-        <p>${issue}</p>
-      `;
-      questionsContainer.appendChild(card);
+  function renderCard(equipment, partNumber, issue, timestamp) {
+  const card = document.createElement('div');
+  card.className = 'question-card';
+  card.style.cursor = 'pointer';
+
+  card.addEventListener('click', () => {
+    showQuestionDetail({ equipment, partNumber, issue, timestamp });
+  });
+
+  card.innerHTML = `
+    <div class="question-title">${equipment}</div>
+    ${partNumber ? `<div class="question-meta">Part Number: ${partNumber}</div>` : ''}
+    <div class="question-meta">Posted on ${new Date(timestamp).toLocaleString()}</div>
+    <p>${issue}</p>
+  `;
+  questionsContainer.appendChild(card);
+}
+
     }
 
     questionForm.addEventListener('submit', async function(e) {
@@ -324,6 +332,37 @@
         back.classList.remove("hidden");
         found.classList.add("hidden");
         renderSolutions();
+        function showQuestionDetail(question) {
+  const match = preloadedSolutions.find(sol =>
+    sol.equipment === question.equipment &&
+    sol.issue === question.issue
+  );
+
+  const detailContainer = document.getElementById('selectedQuestionDetail');
+  detailContainer.innerHTML = `
+    <div class="solution-title">${question.equipment}</div>
+    ${question.partNumber ? `<div class="solution-meta">Part Number: ${question.partNumber}</div>` : ''}
+    <div class="solution-meta">Posted on ${new Date(question.timestamp).toLocaleString()}</div>
+    <p><strong>Issue:</strong> ${question.issue}</p>
+    <p><strong>Solution:</strong> ${match ? match.solution : 'No solution found yet. Be the first to post one!'}</p>
+  `;
+
+  // Toggle views
+  document.getElementById("qaSection").classList.add("hidden");
+  document.getElementById("solutionsSection").classList.add("hidden");
+  document.getElementById("questionDetailSection").classList.remove("hidden");
+  document.getElementById("backButton").classList.add("hidden");
+  document.getElementById("foundSolutionsBtn").classList.remove("hidden");
+}
+
+function showForum() {
+  document.getElementById("qaSection").classList.remove("hidden");
+  document.getElementById("solutionsSection").classList.add("hidden");
+  document.getElementById("questionDetailSection").classList.add("hidden");
+  document.getElementById("backButton").classList.add("hidden");
+  document.getElementById("foundSolutionsBtn").classList.remove("hidden");
+}
+
       }
     }
 
