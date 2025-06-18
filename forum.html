@@ -1,45 +1,58 @@
 <script>
-  const preloadedQuestions = [
-  {
-    equipment: "HVAC Unit",
-    part_number: "HVAC-1123A",
-    issue: "is making loud rattling noises during operation.",
-    timestamp: "2025-06-10T14:20:00Z"
-  },
-  {
-    equipment: "Forklift",
-    part_number: "FL-3002",
-    issue: "won’t lift above 6 feet.",
-    timestamp: "2025-06-12T09:10:00Z"
-  },
-  {
-    equipment: "Generator",
-    part_number: "GEN-8832X",
-    issue: "fails to start even after oil top-up.",
-    timestamp: "2025-06-11T17:45:00Z"
-  }
-];
+  document.addEventListener("DOMContentLoaded", async () => {
+    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // your full key
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const preloadedSolutions = [
-  {
-    equipment: "HVAC Unit",
-    issue: "is making loud rattling noises during operation.",
-    solution: "Tighten the fan blade mounts and check for debris in the casing.",
-    timestamp: "2025-06-10T15:00:00Z"
-  },
-  {
-    equipment: "Forklift",
-    issue: "won’t lift above 6 feet.",
-    solution: "Check hydraulic fluid levels and inspect lift cylinder seals for leaks.",
-    timestamp: "2025-06-12T10:00:00Z"
-  },
-  {
-    equipment: "Generator",
-    issue: "fails to start even after oil top-up.",
-    solution: "Replace the starter battery and inspect spark plugs.",
-    timestamp: "2025-06-11T18:00:00Z"
-  }
-];
+    const questionForm = document.getElementById('questionForm');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const solutionContainer = document.getElementById('solutionContainer');
+
+    const equipmentTypes = ["Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator"];
+    const issues = ["is making unusual noises.", "won’t start.", "is overheating.", "is leaking.", "has low output."];
+    const solutions = ["Check oil level", "Clean filters", "Inspect connections", "Reset system", "Replace worn belt"];
+
+    const preloadedQuestions = [
+      {
+        equipment: "HVAC Unit",
+        part_number: "HVAC-1123A",
+        issue: "is making loud rattling noises during operation.",
+        timestamp: "2025-06-10T14:20:00Z"
+      },
+      {
+        equipment: "Forklift",
+        part_number: "FL-3002",
+        issue: "won’t lift above 6 feet.",
+        timestamp: "2025-06-12T09:10:00Z"
+      },
+      {
+        equipment: "Generator",
+        part_number: "GEN-8832X",
+        issue: "fails to start even after oil top-up.",
+        timestamp: "2025-06-11T17:45:00Z"
+      }
+    ];
+
+    const preloadedSolutions = [
+      {
+        equipment: "HVAC Unit",
+        issue: "is making loud rattling noises during operation.",
+        solution: "Tighten the fan blade mounts and check for debris in the casing.",
+        timestamp: "2025-06-10T15:00:00Z"
+      },
+      {
+        equipment: "Forklift",
+        issue: "won’t lift above 6 feet.",
+        solution: "Check hydraulic fluid levels and inspect lift cylinder seals for leaks.",
+        timestamp: "2025-06-12T10:00:00Z"
+      },
+      {
+        equipment: "Generator",
+        issue: "fails to start even after oil top-up.",
+        solution: "Replace the starter battery and inspect spark plugs.",
+        timestamp: "2025-06-11T18:00:00Z"
+      }
+    ];
 
     const randomQuestions = Array.from({ length: 5 }, (_, i) => ({
       equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
@@ -49,27 +62,27 @@ const preloadedSolutions = [
     }));
 
     async function loadQuestions() {
-  const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+      const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
 
-  questionsContainer.innerHTML = '';
+      questionsContainer.innerHTML = '';
 
-  // Preloaded static questions
-  preloadedQuestions.forEach(q => {
-    renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
-  });
+      // Add preloaded questions
+      preloadedQuestions.forEach(q => {
+        renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
+      });
 
-  // Supabase real data
-  if (realData) {
-    realData.forEach(q => {
-      renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
-    });
-  }
+      // Add Supabase data
+      if (realData) {
+        realData.forEach(q => {
+          renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
+        });
+      }
 
-  // Random filler questions
-  randomQuestions.forEach(q => {
-    renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
-  });
-}
+      // Add random questions
+      randomQuestions.forEach(q => {
+        renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
+      });
+    }
 
     function renderCard(equipment, partNumber, issue, timestamp) {
       const card = document.createElement('div');
@@ -103,38 +116,20 @@ const preloadedSolutions = [
       }
     });
 
-   function renderSolutions() {
-  solutionContainer.innerHTML = '';
+    function renderSolutions() {
+      solutionContainer.innerHTML = '';
 
-  // Add preloaded solutions
-  preloadedSolutions.forEach(s => {
-    const card = document.createElement("div");
-    card.className = "solution-card";
-    card.innerHTML = `
-      <div class="solution-title">${s.equipment} ${s.issue}</div>
-      <div class="solution-meta">Reported on ${new Date(s.timestamp).toLocaleString()}</div>
-      <p><strong>Solution:</strong> ${s.solution}</p>
-    `;
-    solutionContainer.appendChild(card);
-  });
-
-  // Add random fake solutions
-  for (let i = 0; i < 5; i++) {
-    const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
-    const issue = issues[Math.floor(Math.random() * issues.length)];
-    const fix = solutions[Math.floor(Math.random() * solutions.length)];
-    const timestamp = new Date(Date.now() - Math.random() * 1e10).toLocaleString();
-
-    const card = document.createElement("div");
-    card.className = "solution-card";
-    card.innerHTML = `
-      <div class="solution-title">${equipment} ${issue}</div>
-      <div class="solution-meta">Reported on ${timestamp}</div>
-      <p><strong>Solution:</strong> ${fix}</p>
-    `;
-    solutionContainer.appendChild(card);
-  }
-}
+      // Add preloaded solutions
+      preloadedSolutions.forEach(s => {
+        const card = document.createElement("div");
+        card.className = "solution-card";
+        card.innerHTML = `
+          <div class="solution-title">${s.equipment} ${s.issue}</div>
+          <div class="solution-meta">Reported on ${new Date(s.timestamp).toLocaleString()}</div>
+          <p><strong>Solution:</strong> ${s.solution}</p>
+        `;
+        solutionContainer.appendChild(card);
+      });
 
       // Add random solutions
       for (let i = 0; i < 5; i++) {
