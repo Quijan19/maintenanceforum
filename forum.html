@@ -166,4 +166,104 @@
       const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
 
-      const client = supabase.createClient(SU
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const questionForm = document.getElementById('questionForm');
+      const questionsContainer = document.getElementById('questionsContainer');
+
+      questionForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const equipment = document.getElementById('equipmentName').value.trim();
+        const partNumber = document.getElementById('partNumber').value.trim();
+        const issue = document.getElementById('issue').value.trim();
+
+        if (equipment && issue) {
+          const { data, error } = await client.from('questions').insert([{
+            equipment,
+            part_number: partNumber,
+            issue
+          }]);
+
+          if (error) {
+            console.error('Error saving question:', error.message);
+            alert('Failed to save question.');
+          } else {
+            alert('Question posted!');
+            questionForm.reset();
+            loadQuestions();
+          }
+        }
+      });
+
+      async function loadQuestions() {
+        const { data, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+
+        if (error) {
+          console.error('Error loading questions:', error.message);
+          return;
+        }
+
+        questionsContainer.innerHTML = '';
+        data.forEach(q => {
+          const card = document.createElement('div');
+          card.className = 'question-card';
+          card.innerHTML = `
+            <div class="question-title">${q.equipment}</div>
+            ${q.part_number ? `<div class="question-meta">Part Number: ${q.part_number}</div>` : ''}
+            <div class="question-meta">Posted on ${new Date(q.timestamp).toLocaleString()}</div>
+            <p>${q.issue}</p>
+          `;
+          questionsContainer.appendChild(card);
+        });
+      }
+
+      function logout() {
+        alert("You have been logged out.");
+        window.location.href = "index.html";
+      }
+
+      function toggleView() {
+        const qaSection = document.getElementById('qaSection');
+        const solutionsSection = document.getElementById('solutionsSection');
+        const foundBtn = document.getElementById('foundSolutionsBtn');
+        const backBtn = document.getElementById('backButton');
+
+        if (qaSection.classList.contains("hidden")) {
+          qaSection.classList.remove("hidden");
+          solutionsSection.classList.add("hidden");
+          foundBtn.classList.remove("hidden");
+          backBtn.classList.add("hidden");
+        } else {
+          qaSection.classList.add("hidden");
+          solutionsSection.classList.remove("hidden");
+          foundBtn.classList.add("hidden");
+          backBtn.classList.remove("hidden");
+          renderSolutions();
+        }
+      }
+
+      function renderSolutions() {
+        const solutionContainer = document.getElementById("solutionContainer");
+        solutionContainer.innerHTML = '';
+        for (let i = 0; i < 5; i++) {
+          const equipment = ["HVAC", "Pump", "Compressor", "Motor"][Math.floor(Math.random() * 4)];
+          const issue = ["is making noise", "won’t start", "is overheating", "is leaking"][Math.floor(Math.random() * 4)];
+          const fix = ["Check belts", "Replace filter", "Tighten bolts", "Add lubricant"][Math.floor(Math.random() * 4)];
+          const card = document.createElement("div");
+          card.className = "question-card";
+          card.innerHTML = `
+            <div class="question-title">${equipment} ${issue}</div>
+            <div class="question-meta">Suggested Fix:</div>
+            <p>${fix}</p>
+          `;
+          solutionContainer.appendChild(card);
+        }
+      }
+
+      // Initial load
+      loadQuestions();
+    });
+  </script>
+</body>
+</html>
