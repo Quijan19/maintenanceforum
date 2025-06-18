@@ -288,19 +288,53 @@
       }
     });
 
-    function renderSolutions() {
-      solutionContainer.innerHTML = '';
-      preloadedSolutions.forEach(s => {
-        const card = document.createElement("div");
-        card.className = "solution-card";
-        card.innerHTML = `
-          <div class="solution-title">${s.equipment} ${s.issue}</div>
-          <div class="solution-meta">Reported on ${new Date(s.timestamp).toLocaleString()}</div>
-          <p><strong>Solution:</strong> ${s.solution}</p>
-        `;
-        solutionContainer.appendChild(card);
-      });
+   function renderSolutions() {
+  solutionContainer.innerHTML = '';
+
+  const realisticSolutions = [
+    {
+      equipment: "HVAC Unit",
+      issue: "is blowing hot air instead of cold.",
+      solution: "Check refrigerant level and clean the condenser coils.",
+      timestamp: "2025-06-12T10:20:00Z",
+      votes: 4
+    },
+    {
+      equipment: "Generator",
+      issue: "is sputtering after 10 minutes of running.",
+      solution: "Replace the fuel filter and check the carburetor.",
+      timestamp: "2025-06-11T16:45:00Z",
+      votes: 2
+    },
+    {
+      equipment: "Forklift",
+      issue: "is veering left while driving.",
+      solution: "Check tire pressure and inspect the steering column.",
+      timestamp: "2025-06-10T09:15:00Z",
+      votes: 7
     }
+  ];
+
+  realisticSolutions.forEach((item, index) => {
+    const card = document.createElement("div");
+    card.className = "solution-card";
+
+    card.innerHTML = `
+      <div class="solution-title">${item.equipment} ${item.issue}</div>
+      <div class="solution-meta">Reported on ${new Date(item.timestamp).toLocaleString()}</div>
+      <p><strong>Solution:</strong> ${item.solution}</p>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button onclick="upvote(${index})">👍</button>
+        <button onclick="downvote(${index})">👎</button>
+        <span id="vote-count-${index}">Votes: ${item.votes}</span>
+      </div>
+    `;
+    solutionContainer.appendChild(card);
+  });
+
+  // Store vote state for this render
+  window.voteData = realisticSolutions;
+}
 
     function showQuestionDetail(question) {
       const match = preloadedSolutions.find(sol =>
