@@ -355,7 +355,19 @@
   // Store vote state for this render
   window.voteData = realisticSolutions;
 }
+function upvote(index) {
+  if (window.voteData && window.voteData[index]) {
+    window.voteData[index].votes += 1;
+    document.getElementById(`vote-count-${index}`).textContent = `Votes: ${window.voteData[index].votes}`;
+  }
+}
 
+function downvote(index) {
+  if (window.voteData && window.voteData[index]) {
+    window.voteData[index].votes -= 1;
+    document.getElementById(`vote-count-${index}`).textContent = `Votes: ${window.voteData[index].votes}`;
+  }
+}
     function showQuestionDetail(question) {
       const match = preloadedSolutions.find(sol =>
         sol.equipment === question.equipment && sol.issue === question.issue
