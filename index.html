@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Maintenance Help Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
@@ -175,7 +176,6 @@
       <button type="submit">Submit</button>
       <p class="error-message" id="loginError" style="display: none;">Invalid email or password</p>
       <p>Don't have an account? <a href="signup.html">Create Account</a></p>
-
     </form>
   </div>
 
@@ -231,33 +231,37 @@
   </div>
 
   <script>
-  function handleLogin(event) {
-    event.preventDefault(); // Prevent form refresh
+    const SUPABASE_URL = 'https://your-project-id.supabase.co'; // <-- replace with your Supabase URL
+    const SUPABASE_ANON_KEY = 'your-anon-key'; // <-- replace with your Supabase anon key
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ✅ Get user input from form
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    async function handleLogin(event) {
+      event.preventDefault();
 
-    // ✅ Get stored credentials
-    const savedEmail = localStorage.getItem("savedEmail");
-    const savedPassword = localStorage.getItem("savedPassword");
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-    // ✅ Check credentials
-    if (email === savedEmail && password === savedPassword) {
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("mainContent").classList.remove("hidden");
-      document.getElementById("loginError").style.display = "none";
-    } else {
-      document.getElementById("loginError").style.display = "block";
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        document.getElementById("loginError").style.display = "block";
+      } else {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("mainContent").classList.remove("hidden");
+        document.getElementById("loginError").style.display = "none";
+      }
     }
-  }
 
-  function logout() {
-    document.getElementById("mainContent").classList.add("hidden");
-    document.getElementById("loginBox").style.display = "flex";
-    document.getElementById("email").value = '';
-    document.getElementById("password").value = '';
-  }
-</script>
+    async function logout() {
+      await supabase.auth.signOut();
+      document.getElementById("mainContent").classList.add("hidden");
+      document.getElementById("loginBox").style.display = "flex";
+      document.getElementById("email").value = '';
+      document.getElementById("password").value = '';
+    }
+  </script>
 </body>
 </html>
