@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Maintenance Q&A Forum</title>
+  <title>Maintenance Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -21,6 +21,12 @@
       padding: 1rem;
     }
 
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 1rem;
+    }
+
     .question-card {
       background: #f5f5f5;
       padding: 1rem;
@@ -33,10 +39,11 @@
       display: none;
     }
 
-    main {
-      max-width: 800px;
-      margin: auto;
+    .detail-section, .solution-section {
+      background: #f5f5f5;
       padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
     }
 
     button {
@@ -49,17 +56,9 @@
       margin: 0.5rem;
     }
 
-    .solution-section,
-    .detail-section {
-      background: #f5f5f5;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-top: 1rem;
-    }
-
-    form textarea {
+    textarea {
       width: 100%;
-      padding: 1rem;
+      padding: 0.8rem;
       margin: 1rem 0;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -72,32 +71,24 @@
   <h1>Maintenance Forum</h1>
 </header>
 
-<!-- Community Questions -->
 <main id="questionList">
   <h2>Community Questions</h2>
   <div id="questionsContainer"></div>
 </main>
 
-<!-- Selected Question View -->
 <main id="questionDetail" class="hidden">
   <h2>Proposed Solution</h2>
   <div class="detail-section" id="selectedQuestion"></div>
   <div>
     <button onclick="showReviewSolution()">Review Solutions</button>
-    <button onclick="togglePostSolutionForm()">Post a Solution</button>
+    <button onclick="document.getElementById('solutionForm').classList.remove('hidden')">Post a Solution</button>
     <button onclick="returnToForum()">Return to Forum</button>
   </div>
+  <form id="solutionForm" class="hidden" onsubmit="submitSolution(event)">
+    <textarea id="solutionText" placeholder="Write your solution..." required></textarea>
+    <button type="submit">Submit Solution</button>
+  </form>
   <div class="solution-section hidden" id="solutionOutput"></div>
-
-  <!-- Post a Solution Form -->
-  <div id="solutionFormContainer" class="hidden">
-    <h3>Submit Your Solution</h3>
-    <form id="solutionForm" onsubmit="submitSolution(event)">
-      <textarea id="solutionText" rows="4" placeholder="Describe your solution..." required></textarea>
-      <button type="submit">Submit Solution</button>
-    </form>
-    <p id="solutionSuccessMsg" style="color: green; display: none;">Solution submitted successfully!</p>
-  </div>
 </main>
 
 <footer>
@@ -105,9 +96,8 @@
 </footer>
 
 <script>
-  // Supabase setup
   const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // shortened for safety
   const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const questionsContainer = document.getElementById('questionsContainer');
@@ -115,9 +105,7 @@
   const questionDetail = document.getElementById('questionDetail');
   const selectedQuestion = document.getElementById('selectedQuestion');
   const solutionOutput = document.getElementById('solutionOutput');
-  const solutionFormContainer = document.getElementById('solutionFormContainer');
-  const solutionSuccessMsg = document.getElementById('solutionSuccessMsg');
-  const solutionText = document.getElementById('solutionText');
+  const solutionForm = document.getElementById('solutionForm');
 
   const demoSolutions = [
     "Check oil levels and refill.",
@@ -135,16 +123,12 @@
       .select('*')
       .order('timestamp', { ascending: false });
 
-    if (error) {
-      alert("Error loading questions");
-      return;
-    }
+    console.log("Questions from Supabase:", data, "Error:", error);
 
-    if (!data || data.length === 0) {
+    if (error || !data || data.length === 0) {
       const demo = [
-        { equipment: "Generator", issue: "Won't start", part_number: "PN-1234" },
-        { equipment: "Air Compressor", issue: "Low pressure output", part_number: "AC-998" },
-        { equipment: "Forklift", issue: "Hydraulic leak" },
+        { id: "demo1", equipment: "Generator", issue: "Won’t start", part_number: "PN-1234" },
+        { id: "demo2", equipment: "Air Compressor", issue: "Low pressure", part_number: "AC-998" }
       ];
       renderQuestions(demo);
     } else {
@@ -152,14 +136,14 @@
     }
   }
 
-  function renderQuestions(questionListData) {
+  function renderQuestions(list) {
     questionsContainer.innerHTML = '';
-    questionListData.forEach(q => {
-      const div = document.createElement('div');
-      div.className = 'question-card';
-      div.textContent = `${q.equipment}: ${q.issue}`;
-      div.onclick = () => showQuestionDetail(q);
-      questionsContainer.appendChild(div);
+    list.forEach(q => {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.textContent = `${q.equipment}: ${q.issue}`;
+      card.onclick = () => showQuestionDetail(q);
+      questionsContainer.appendChild(card);
     });
   }
 
@@ -172,15 +156,8 @@
     `;
     questionList.classList.add('hidden');
     questionDetail.classList.remove('hidden');
+    solutionForm.classList.add('hidden');
     solutionOutput.classList.add('hidden');
-    solutionFormContainer.classList.add('hidden');
-    solutionSuccessMsg.style.display = 'none';
-  }
-
-  function showReviewSolution() {
-    const solution = demoSolutions[Math.floor(Math.random() * demoSolutions.length)];
-    solutionOutput.innerHTML = `<p><strong>Suggested Fix:</strong> ${solution}</p>`;
-    solutionOutput.classList.remove('hidden');
   }
 
   function returnToForum() {
@@ -188,31 +165,35 @@
     questionDetail.classList.add('hidden');
   }
 
-  function togglePostSolutionForm() {
-    solutionFormContainer.classList.toggle('hidden');
-    solutionSuccessMsg.style.display = 'none';
+  function showReviewSolution() {
+    const suggestion = demoSolutions[Math.floor(Math.random() * demoSolutions.length)];
+    solutionOutput.innerHTML = `<p><strong>Suggested Fix:</strong> ${suggestion}</p>`;
+    solutionOutput.classList.remove('hidden');
   }
 
-  async function submitSolution(event) {
-    event.preventDefault();
-    const content = solutionText.value.trim();
-    if (!content || !currentQuestion?.id) return;
+  async function submitSolution(e) {
+    e.preventDefault();
+    const text = document.getElementById("solutionText").value.trim();
+    if (!text || !currentQuestion?.id) return;
 
-    const { error } = await supabase.from('solutions').insert([
+    const { data, error } = await supabase.from('solutions').insert([
       {
         question_id: currentQuestion.id,
-        content,
-        submitted_at: new Date().toISOString()
+        solution: text,
+        created_at: new Date().toISOString()
       }
     ]);
 
     if (error) {
-      alert('Error submitting solution');
+      alert("Failed to submit solution.");
+      console.error(error);
       return;
     }
 
-    solutionText.value = '';
-    solutionSuccessMsg.style.display = 'block';
+    document.getElementById("solutionText").value = "";
+    solutionForm.classList.add("hidden");
+    solutionOutput.innerHTML = `<p><strong>Your solution has been posted!</strong></p>`;
+    solutionOutput.classList.remove("hidden");
   }
 
   loadQuestions();
