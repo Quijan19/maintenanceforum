@@ -77,8 +77,9 @@
   </form>
 
   <script>
-    const SUPABASE_URL = 'https://your-project-id.supabase.co'; // replace
-    const SUPABASE_ANON_KEY = 'your-anon-key'; // replace
+    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
+
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function handleSignup(event) {
@@ -87,10 +88,7 @@
       const email = document.getElementById("signupEmail").value;
       const password = document.getElementById("signupPassword").value;
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const { data, error } = await supabase.auth.signUp({ email, password });
 
       if (error) {
         document.getElementById("signupError").textContent = error.message;
