@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign Up – Maintenance Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <!-- ✅ Load Supabase script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
@@ -66,7 +69,8 @@
   </style>
 </head>
 <body>
-  <form class="signup-box" onsubmit="handleSignup(event)">
+
+  <form class="signup-box" id="signupForm">
     <h2>Create an Account</h2>
     <input type="email" id="signupEmail" placeholder="Email" required />
     <input type="password" id="signupPassword" placeholder="Password" required />
@@ -76,29 +80,34 @@
     <p>Already have an account? <a href="index.html">Login</a></p>
   </form>
 
+  <!-- ✅ JavaScript must come AFTER Supabase is loaded -->
   <script>
-    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
+    document.addEventListener("DOMContentLoaded", async () => {
+      const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function handleSignup(event) {
-      event.preventDefault();
+      const form = document.getElementById("signupForm");
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-      const email = document.getElementById("signupEmail").value;
-      const password = document.getElementById("signupPassword").value;
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
 
-      const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await client.auth.signUp({ email, password });
 
-      if (error) {
-        document.getElementById("signupError").textContent = error.message;
-        document.getElementById("signupError").style.display = "block";
-        document.getElementById("signupSuccess").style.display = "none";
-      } else {
-        document.getElementById("signupSuccess").style.display = "block";
-        document.getElementById("signupError").style.display = "none";
-      }
-    }
+        if (error) {
+          console.error("Signup error:", error.message);
+          document.getElementById("signupError").textContent = error.message;
+          document.getElementById("signupError").style.display = "block";
+          document.getElementById("signupSuccess").style.display = "none";
+        } else {
+          document.getElementById("signupSuccess").style.display = "block";
+          document.getElementById("signupError").style.display = "none";
+        }
+      });
+    });
   </script>
 </body>
 </html>
