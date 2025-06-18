@@ -288,7 +288,7 @@
       }
     });
 
-   function renderSolutions() {
+  function renderSolutions() {
   solutionContainer.innerHTML = '';
 
   const realisticSolutions = [
@@ -312,8 +312,24 @@
       solution: "Check tire pressure and inspect the steering column.",
       timestamp: "2025-06-10T09:15:00Z",
       votes: 7
+    },
+    {
+      equipment: "CNC Machine",
+      issue: "is misaligning cuts along the Y-axis.",
+      solution: "Recalibrate the stepper motor alignment and check the belt tension.",
+      timestamp: "2025-06-09T12:50:00Z",
+      votes: 5
+    },
+    {
+      equipment: "Air Compressor",
+      issue: "won’t hold pressure.",
+      solution: "Inspect the tank for leaks and replace the pressure relief valve.",
+      timestamp: "2025-06-08T08:30:00Z",
+      votes: 3
     }
   ];
+
+  window.voteData = realisticSolutions;
 
   realisticSolutions.forEach((item, index) => {
     const card = document.createElement("div");
@@ -323,12 +339,16 @@
       <div class="solution-title">${item.equipment} ${item.issue}</div>
       <div class="solution-meta">Reported on ${new Date(item.timestamp).toLocaleString()}</div>
       <p><strong>Solution:</strong> ${item.solution}</p>
-      <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1rem; margin-top: 1rem;">
         <button onclick="upvote(${index})">👍</button>
         <button onclick="downvote(${index})">👎</button>
         <span id="vote-count-${index}">Votes: ${item.votes}</span>
       </div>
     `;
+    solutionContainer.appendChild(card);
+  });
+}
+
     solutionContainer.appendChild(card);
   });
 
