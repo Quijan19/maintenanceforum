@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Maintenance Q&A Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
@@ -48,7 +47,6 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 1rem;
-      z-index: 999;
     }
 
     main {
@@ -166,10 +164,14 @@
     <p>&copy; 2025 • Maintenance Forum : Qui' Jan Otis, Ian O'Toole, Mackenzie Goodrich</p>
   </footer>
 
-  <script>
+  <!-- Load Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+
+  <!-- Run App Logic After Supabase Loads -->
+  <script defer>
     document.addEventListener("DOMContentLoaded", async () => {
       const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-      const SUPABASE_ANON_KEY = 'YOUR_FULL_ANON_KEY_HERE'; // Replace with your full anon key
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA'; // ← Replace this
       const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const questionForm = document.getElementById('questionForm');
@@ -192,19 +194,20 @@
         { equipment: "Generator", issue: "fails to start even after oil top-up.", solution: "Replace the starter battery and inspect spark plugs.", timestamp: "2025-06-11T18:00:00Z" }
       ];
 
-      const randomQuestions = Array.from({ length: 5 }, (_, i) => ({
-        equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
-        part_number: "PN-" + Math.floor(Math.random() * 9999),
-        issue: issues[Math.floor(Math.random() * issues.length)],
-        timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
-      }));
-
       async function loadQuestions() {
         const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
         questionsContainer.innerHTML = '';
-        preloadedQuestions.forEach(q => renderCard(q));
-        if (realData) realData.forEach(q => renderCard(q));
-        randomQuestions.forEach(q => renderCard(q));
+        preloadedQuestions.forEach(renderCard);
+        if (realData) realData.forEach(renderCard);
+        for (let i = 0; i < 5; i++) {
+          const q = {
+            equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
+            part_number: "PN-" + Math.floor(Math.random() * 9999),
+            issue: issues[Math.floor(Math.random() * issues.length)],
+            timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
+          };
+          renderCard(q);
+        }
       }
 
       function renderCard(q) {
@@ -251,26 +254,11 @@
           `;
           solutionContainer.appendChild(card);
         });
-        for (let i = 0; i < 5; i++) {
-          const card = document.createElement("div");
-          card.className = "solution-card";
-          const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
-          const issue = issues[Math.floor(Math.random() * issues.length)];
-          const fix = solutions[Math.floor(Math.random() * solutions.length)];
-          const timestamp = new Date(Date.now() - Math.random() * 1e10).toLocaleString();
-          card.innerHTML = `
-            <div class="solution-title">${equipment} ${issue}</div>
-            <div class="solution-meta">Reported on ${timestamp}</div>
-            <p><strong>Solution:</strong> ${fix}</p>
-          `;
-          solutionContainer.appendChild(card);
-        }
       }
 
       function showQuestionDetail(question) {
         const match = preloadedSolutions.find(sol =>
-          sol.equipment === question.equipment &&
-          sol.issue === question.issue
+          sol.equipment === question.equipment && sol.issue === question.issue
         );
         const container = document.getElementById("selectedQuestionDetail");
         container.innerHTML = `
@@ -289,6 +277,8 @@
         document.getElementById("qaSection").classList.remove("hidden");
         document.getElementById("solutionsSection").classList.add("hidden");
         document.getElementById("questionDetailSection").classList.add("hidden");
+        document.getElementById("backButton").classList.add("hidden");
+        document.getElementById("foundSolutionsBtn").classList.remove("hidden");
       }
 
       function toggleView() {
