@@ -158,121 +158,182 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // your full key
-      const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // your full key
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      const questionForm = document.getElementById('questionForm');
-      const questionsContainer = document.getElementById('questionsContainer');
-      const solutionContainer = document.getElementById('solutionContainer');
+    const questionForm = document.getElementById('questionForm');
+    const questionsContainer = document.getElementById('questionsContainer');
+    const solutionContainer = document.getElementById('solutionContainer');
 
-      // 🔁 Random demo data
-      const equipmentTypes = ["Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator"];
-      const issues = ["is making unusual noises.", "won’t start.", "is overheating.", "is leaking.", "has low output."];
-      const solutions = ["Check oil level", "Clean filters", "Inspect connections", "Reset system", "Replace worn belt"];
+    const equipmentTypes = ["Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator"];
+    const issues = ["is making unusual noises.", "won’t start.", "is overheating.", "is leaking.", "has low output."];
+    const solutions = ["Check oil level", "Clean filters", "Inspect connections", "Reset system", "Replace worn belt"];
 
-      const randomQuestions = Array.from({ length: 5 }, (_, i) => ({
-        equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
-        part_number: "PN-" + Math.floor(Math.random() * 9999),
-        issue: issues[Math.floor(Math.random() * issues.length)],
-        timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
-      }));
+    const preloadedQuestions = [
+      {
+        equipment: "HVAC Unit",
+        part_number: "HVAC-1123A",
+        issue: "is making loud rattling noises during operation.",
+        timestamp: "2025-06-10T14:20:00Z"
+      },
+      {
+        equipment: "Forklift",
+        part_number: "FL-3002",
+        issue: "won’t lift above 6 feet.",
+        timestamp: "2025-06-12T09:10:00Z"
+      },
+      {
+        equipment: "Generator",
+        part_number: "GEN-8832X",
+        issue: "fails to start even after oil top-up.",
+        timestamp: "2025-06-11T17:45:00Z"
+      }
+    ];
 
-      // 🧠 Load real + fake questions
-      async function loadQuestions() {
-        const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+    const preloadedSolutions = [
+      {
+        equipment: "HVAC Unit",
+        issue: "is making loud rattling noises during operation.",
+        solution: "Tighten the fan blade mounts and check for debris in the casing.",
+        timestamp: "2025-06-10T15:00:00Z"
+      },
+      {
+        equipment: "Forklift",
+        issue: "won’t lift above 6 feet.",
+        solution: "Check hydraulic fluid levels and inspect lift cylinder seals for leaks.",
+        timestamp: "2025-06-12T10:00:00Z"
+      },
+      {
+        equipment: "Generator",
+        issue: "fails to start even after oil top-up.",
+        solution: "Replace the starter battery and inspect spark plugs.",
+        timestamp: "2025-06-11T18:00:00Z"
+      }
+    ];
 
-        questionsContainer.innerHTML = '';
-        if (realData) {
-          realData.forEach(q => {
-            renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
-          });
-        }
-        randomQuestions.forEach(q => {
+    const randomQuestions = Array.from({ length: 5 }, (_, i) => ({
+      equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
+      part_number: "PN-" + Math.floor(Math.random() * 9999),
+      issue: issues[Math.floor(Math.random() * issues.length)],
+      timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
+    }));
+
+    async function loadQuestions() {
+      const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+
+      questionsContainer.innerHTML = '';
+
+      // Add preloaded questions
+      preloadedQuestions.forEach(q => {
+        renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
+      });
+
+      // Add Supabase data
+      if (realData) {
+        realData.forEach(q => {
           renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
         });
       }
 
-      function renderCard(equipment, partNumber, issue, timestamp) {
-        const card = document.createElement('div');
-        card.className = 'question-card';
-        card.innerHTML = `
-          <div class="question-title">${equipment}</div>
-          ${partNumber ? `<div class="question-meta">Part Number: ${partNumber}</div>` : ''}
-          <div class="question-meta">Posted on ${new Date(timestamp).toLocaleString()}</div>
-          <p>${issue}</p>
-        `;
-        questionsContainer.appendChild(card);
-      }
+      // Add random questions
+      randomQuestions.forEach(q => {
+        renderCard(q.equipment, q.part_number, q.issue, q.timestamp);
+      });
+    }
 
-      // ✍️ Submit new question to Supabase
-      questionForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const equipment = document.getElementById('equipmentName').value.trim();
-        const partNumber = document.getElementById('partNumber').value.trim();
-        const issue = document.getElementById('issue').value.trim();
+    function renderCard(equipment, partNumber, issue, timestamp) {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.innerHTML = `
+        <div class="question-title">${equipment}</div>
+        ${partNumber ? `<div class="question-meta">Part Number: ${partNumber}</div>` : ''}
+        <div class="question-meta">Posted on ${new Date(timestamp).toLocaleString()}</div>
+        <p>${issue}</p>
+      `;
+      questionsContainer.appendChild(card);
+    }
 
-        if (equipment && issue) {
-          const { data, error } = await client.from('questions').insert([{ equipment, part_number: partNumber, issue }]);
+    questionForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const equipment = document.getElementById('equipmentName').value.trim();
+      const partNumber = document.getElementById('partNumber').value.trim();
+      const issue = document.getElementById('issue').value.trim();
 
-          if (error) {
-            alert('Error saving question.');
-            console.error(error.message);
-          } else {
-            alert('Question posted!');
-            questionForm.reset();
-            loadQuestions();
-          }
+      if (equipment && issue) {
+        const { data, error } = await client.from('questions').insert([{ equipment, part_number: partNumber, issue }]);
+
+        if (error) {
+          alert('Error saving question.');
+          console.error(error.message);
+        } else {
+          alert('Question posted!');
+          questionForm.reset();
+          loadQuestions();
         }
+      }
+    });
+
+    function renderSolutions() {
+      solutionContainer.innerHTML = '';
+
+      // Add preloaded solutions
+      preloadedSolutions.forEach(s => {
+        const card = document.createElement("div");
+        card.className = "solution-card";
+        card.innerHTML = `
+          <div class="solution-title">${s.equipment} ${s.issue}</div>
+          <div class="solution-meta">Reported on ${new Date(s.timestamp).toLocaleString()}</div>
+          <p><strong>Solution:</strong> ${s.solution}</p>
+        `;
+        solutionContainer.appendChild(card);
       });
 
-      // 🟢 Fake Found Solutions Tab
-      function renderSolutions() {
-        solutionContainer.innerHTML = '';
-        for (let i = 0; i < 5; i++) {
-          const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
-          const issue = issues[Math.floor(Math.random() * issues.length)];
-          const fix = solutions[Math.floor(Math.random() * solutions.length)];
-          const timestamp = new Date(Date.now() - Math.random() * 1e10).toLocaleString();
+      // Add random solutions
+      for (let i = 0; i < 5; i++) {
+        const equipment = equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)];
+        const issue = issues[Math.floor(Math.random() * issues.length)];
+        const fix = solutions[Math.floor(Math.random() * solutions.length)];
+        const timestamp = new Date(Date.now() - Math.random() * 1e10).toLocaleString();
 
-          const card = document.createElement("div");
-          card.className = "solution-card";
-          card.innerHTML = `
-            <div class="solution-title">${equipment} ${issue}</div>
-            <div class="solution-meta">Reported on ${timestamp}</div>
-            <p><strong>Solution:</strong> ${fix}</p>
-          `;
-          solutionContainer.appendChild(card);
-        }
+        const card = document.createElement("div");
+        card.className = "solution-card";
+        card.innerHTML = `
+          <div class="solution-title">${equipment} ${issue}</div>
+          <div class="solution-meta">Reported on ${timestamp}</div>
+          <p><strong>Solution:</strong> ${fix}</p>
+        `;
+        solutionContainer.appendChild(card);
       }
+    }
 
-      function toggleView() {
-        const qa = document.getElementById("qaSection");
-        const sol = document.getElementById("solutionsSection");
-        const back = document.getElementById("backButton");
-        const found = document.getElementById("foundSolutionsBtn");
+    function toggleView() {
+      const qa = document.getElementById("qaSection");
+      const sol = document.getElementById("solutionsSection");
+      const back = document.getElementById("backButton");
+      const found = document.getElementById("foundSolutionsBtn");
 
-        if (qa.classList.contains("hidden")) {
-          qa.classList.remove("hidden");
-          sol.classList.add("hidden");
-          back.classList.add("hidden");
-          found.classList.remove("hidden");
-        } else {
-          qa.classList.add("hidden");
-          sol.classList.remove("hidden");
-          back.classList.remove("hidden");
-          found.classList.add("hidden");
-          renderSolutions();
-        }
+      if (qa.classList.contains("hidden")) {
+        qa.classList.remove("hidden");
+        sol.classList.add("hidden");
+        back.classList.add("hidden");
+        found.classList.remove("hidden");
+      } else {
+        qa.classList.add("hidden");
+        sol.classList.remove("hidden");
+        back.classList.remove("hidden");
+        found.classList.add("hidden");
+        renderSolutions();
       }
+    }
 
-      function logout() {
-        alert("You have been logged out.");
-        window.location.href = "index.html";
-      }
+    function logout() {
+      alert("You have been logged out.");
+      window.location.href = "index.html";
+    }
 
-      loadQuestions();
-    });
-  </script>
-</body>
-</html>
+    loadQuestions();
+  });
+</script>
+
+
