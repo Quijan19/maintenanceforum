@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
+    /* [styling same as before] */
     body {
       font-family: 'Baloo 2', sans-serif;
       margin: 0;
@@ -167,7 +168,7 @@
 </head>
 <body>
 
-  <!-- Login Section -->
+  <!-- Login -->
   <div class="login-container" id="loginBox">
     <form class="login-box" id="loginForm" onsubmit="handleLogin(event)">
       <h2>Login to Maintenance Forum</h2>
@@ -179,7 +180,7 @@
     </form>
   </div>
 
-  <!-- Forum Content -->
+  <!-- Main Content -->
   <div id="mainContent" class="hidden">
     <button class="logout-btn" onclick="logout()">Logout</button>
     <header>
@@ -193,18 +194,9 @@
     </header>
 
     <div class="features">
-      <div class="feature">
-        <h3>🛠 Verified Solutions</h3>
-        <p>Learn from others who’ve fixed the same issues before you.</p>
-      </div>
-      <div class="feature">
-        <h3>📋 Ask Your Question</h3>
-        <p>Post real maintenance problems and get quick responses.</p>
-      </div>
-      <div class="feature">
-        <h3>💡 Deep Insights</h3>
-        <p>Improve processes with shared knowledge from the field.</p>
-      </div>
+      <div class="feature"><h3>🛠 Verified Solutions</h3><p>Learn from others who’ve fixed the same issues before you.</p></div>
+      <div class="feature"><h3>📋 Ask Your Question</h3><p>Post real maintenance problems and get quick responses.</p></div>
+      <div class="feature"><h3>💡 Deep Insights</h3><p>Improve processes with shared knowledge from the field.</p></div>
     </div>
 
     <section>
@@ -219,41 +211,28 @@
     <footer>
       <p>&copy; 2025 • Maintenance Forum : Qui' Jan Otis, Ian O'Toole, Mackenzie Goodrich</p>
     </footer>
-
-    <div id="chatbot" style="position: fixed; bottom: 1rem; right: 1rem; width: 300px; background: #f9f9f9; border: 1px solid #ccc; border-radius: 10px; padding: 1rem; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: none;">
-      <h4 style="margin-top: 0;">Need Help?</h4>
-      <p><strong>Q:</strong> How do I post a question?<br><strong>A:</strong> Click "Join the Forum" and fill out the form.</p>
-      <p><strong>Q:</strong> Can I search for existing solutions?<br><strong>A:</strong> Yes! Use the search bar in the top right.</p>
-      <button onclick="document.getElementById('chatbot').style.display='none'" style="margin-top: 0.5rem; background: #00d084; color: white; border: none; border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer;">Close</button>
-    </div>
-
-    <button onclick="document.getElementById('chatbot').style.display='block'" style="position: fixed; bottom: 1rem; right: 1rem; background: #00d084; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5rem; cursor: pointer;">💬</button>
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://your-project-id.supabase.co'; // <-- replace with your Supabase URL
-    const SUPABASE_ANON_KEY = 'your-anon-key'; // <-- replace with your Supabase anon key
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // Keep user logged in if session is active
-supabase.auth.getSession().then(({ data: { session } }) => {
-  if (session) {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("mainContent").classList.remove("hidden");
-  }
-});
+    const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
 
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Keep user logged in if session is still active
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("mainContent").classList.remove("hidden");
+      }
+    });
 
     async function handleLogin(event) {
       event.preventDefault();
-
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         document.getElementById("loginError").style.display = "block";
