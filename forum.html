@@ -186,72 +186,6 @@
   min-width: 1.2rem;
   text-align: center;
 }
-#chat-container {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 300px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  overflow: hidden;
-  z-index: 9999;
-  font-family: 'Baloo 2', sans-serif;
-}
-
-#chat-header {
-  background: #00d084;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-  font-weight: bold;
-}
-
-#chat-messages {
-  height: 200px;
-  overflow-y: auto;
-  padding: 0.5rem;
-  font-size: 0.95rem;
-}
-
-#chat-input-area {
-  display: flex;
-  border-top: 1px solid #ccc;
-}
-
-#chat-input {
-  flex: 1;
-  padding: 0.5rem;
-  border: none;
-  font-size: 1rem;
-}
-
-#chat-input:focus {
-  outline: none;
-}
-
-#chat-input-area button {
-  background: #00d084;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-}
-
-.chat-message {
-  margin: 0.5rem 0;
-}
-
-.chat-message.user {
-  text-align: right;
-  color: #111;
-}
-
-.chat-message.ai {
-  text-align: left;
-  color: #00a;
-}
 
 
   </style>
@@ -294,12 +228,6 @@
     </div>
   </main>
   
-<div id="chat-container">
-  <div id="chat-header">Maintenance Assistant</div>
-  <div id="chat-messages"></div>
-  <div id="chat-input-area">
-    <input type="text" id="chat-input" placeholder="Ask me about maintenance..." />
-    <button onclick="sendMessage()">Send</button>
   </div>
 </div>
 
