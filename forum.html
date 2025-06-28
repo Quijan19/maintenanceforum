@@ -126,17 +126,37 @@
   margin-top: 0.5rem;
 }
 
+.question-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.vote-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.4rem;
+  padding-top: 0.2rem;
+  user-select: none;
+}
+
 .vote-btn {
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   cursor: pointer;
+  color: #333;
+  transition: color 0.2s;
+}
+
+.vote-btn:hover {
+  color: #00aaff;
 }
 
 .vote-count {
   font-weight: bold;
-  font-size: 1rem;
-
+  margin: 0.4rem 0;
 
     }
   </style>
@@ -272,35 +292,42 @@
       }
     }
 
- function renderCard(q) {
+function renderCard(q) {
   const card = document.createElement('div');
   card.className = 'question-card';
-  card.style.cursor = 'pointer';
 
-  // Randomize vote counts
-  let upvotes = Math.floor(Math.random() * 100);
-  let downvotes = Math.floor(Math.random() * 20);
+  // Randomized vote count
+  let voteCount = Math.floor(Math.random() * 100 - 20); // can be negative
 
-  // Event to show details
+  // Container for the vote + content
+  card.innerHTML = `
+    <div class="question-content">
+      <div class="vote-column">
+        <button class="vote-btn" onclick="event.stopPropagation(); voteDisplay.textContent = ++voteCount">⬆</button>
+        <div class="vote-count" id="voteDisplay">${voteCount}</div>
+        <button class="vote-btn" onclick="event.stopPropagation(); voteDisplay.textContent = --voteCount">⬇</button>
+      </div>
+      <div class="question-info">
+        <div class="question-title">${q.equipment}</div>
+        ${q.part_number ? `<div class="question-meta">Part Number: ${q.part_number}</div>` : ''}
+        <div class="question-meta">Posted on ${new Date(q.timestamp).toLocaleString()}</div>
+        <p>${q.issue}</p>
+      </div>
+    </div>
+  `;
+
+  // Attach event listener to open detail view
   card.addEventListener('click', () => {
     previousView = document.getElementById("solutionsSection").classList.contains("hidden") ? 'forum' : 'solutions';
     showQuestionDetail(q);
   });
 
-  // Render HTML
-  card.innerHTML = `
-    <div class="question-title">${q.equipment}</div>
-    ${q.part_number ? `<div class="question-meta">Part Number: ${q.part_number}</div>` : ''}
-    <div class="question-meta">Posted on ${new Date(q.timestamp).toLocaleString()}</div>
-    <p>${q.issue}</p>
-    <div class="vote-buttons">
-      <button class="vote-btn" onclick="event.stopPropagation(); this.nextElementSibling.textContent = ++upvotes">⬆️</button>
-      <span class="vote-count">${upvotes}</span>
-      <button class="vote-btn" onclick="event.stopPropagation(); this.previousElementSibling.textContent = --upvotes">⬇️</button>
-    </div>
-  `;
+  // Fix for scope of voteDisplay
+  const voteDisplay = card.querySelector("#voteDisplay");
+
   questionsContainer.appendChild(card);
 }
+
 
 
     questionForm.addEventListener('submit', async function(e) {
