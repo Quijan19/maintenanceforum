@@ -289,21 +289,66 @@
     const questionsContainer = document.getElementById('questionsContainer');
     const solutionContainer = document.getElementById('solutionContainer');
 
-    const equipmentTypes = ["Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator"];
-    const issues = ["is making unusual noises.", "won’t start.", "is overheating.", "is leaking.", "has low output."];
-    const solutions = ["Check oil level", "Clean filters", "Inspect connections", "Reset system", "Replace worn belt"];
+   const equipmentTypes = [
+  "Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator",
+  "Hydraulic Press", "Boiler System", "Backup Battery Unit", "Conveyor Belt", "Cooling Tower"
+];
 
-    const preloadedQuestions = [
-      { equipment: "HVAC Unit", part_number: "HVAC-1123A", issue: "is making loud rattling noises during operation.", timestamp: "2025-06-10T14:20:00Z" },
-      { equipment: "Forklift", part_number: "FL-3002", issue: "won’t lift above 6 feet.", timestamp: "2025-06-12T09:10:00Z" },
-      { equipment: "Generator", part_number: "GEN-8832X", issue: "fails to start even after oil top-up.", timestamp: "2025-06-11T17:45:00Z" }
-    ];
+const issues = [
+  "is making unusual noises.",
+  "won’t start.",
+  "is overheating.",
+  "is leaking.",
+  "has low output.",
+  "stops unexpectedly.",
+  "has a burning smell.",
+  "is vibrating excessively.",
+  "shows an error code on startup.",
+  "has slow response time."
+];
 
-    const preloadedSolutions = [
-      { equipment: "HVAC Unit", issue: "is making loud rattling noises during operation.", solution: "Tighten the fan blade mounts and check for debris in the casing.", timestamp: "2025-06-10T15:00:00Z" },
-      { equipment: "Forklift", issue: "won’t lift above 6 feet.", solution: "Check hydraulic fluid levels and inspect lift cylinder seals for leaks.", timestamp: "2025-06-12T10:00:00Z" },
-      { equipment: "Generator", issue: "fails to start even after oil top-up.", solution: "Replace the starter battery and inspect spark plugs.", timestamp: "2025-06-11T18:00:00Z" }
-    ];
+const solutionsByIssue = {
+  "is making unusual noises.": "Tighten all external bolts and inspect for loose panels.",
+  "won’t start.": "Check the power supply and inspect the starter motor.",
+  "is overheating.": "Clean the cooling fins and check coolant levels.",
+  "is leaking.": "Inspect all seals and replace any damaged gaskets.",
+  "has low output.": "Check pressure settings and clean the filters.",
+  "stops unexpectedly.": "Inspect power connections and check for tripped breakers.",
+  "has a burning smell.": "Shut down immediately and inspect wiring and motor.",
+  "is vibrating excessively.": "Check alignment and inspect mounting brackets.",
+  "shows an error code on startup.": "Refer to the manual and reset the control panel.",
+  "has slow response time.": "Check system latency and inspect signal cables."
+};
+
+const preloadedQuestions = [
+  { equipment: "CNC Machine", part_number: "CNC-5048", issue: "is overheating.", timestamp: "2025-06-14T22:00:00Z" },
+  { equipment: "Cooling Tower", part_number: "COO-9134", issue: "stops unexpectedly.", timestamp: "2025-06-16T03:00:00Z" },
+  { equipment: "Hydraulic Press", part_number: "HYD-1661", issue: "is overheating.", timestamp: "2025-06-09T04:00:00Z" },
+  { equipment: "Boiler System", part_number: "BOI-2443", issue: "has low output.", timestamp: "2025-06-16T21:00:00Z" },
+  { equipment: "Generator", part_number: "GEN-4946", issue: "won’t start.", timestamp: "2025-06-17T22:00:00Z" },
+  { equipment: "Conveyor Belt", part_number: "CON-8233", issue: "has a burning smell.", timestamp: "2025-06-14T15:00:00Z" },
+  { equipment: "Backup Battery Unit", part_number: "BBU-7030", issue: "shows an error code on startup.", timestamp: "2025-06-06T18:00:00Z" },
+  { equipment: "Air Compressor", part_number: "AIR-2033", issue: "is leaking.", timestamp: "2025-06-19T12:00:00Z" },
+  { equipment: "HVAC Unit", part_number: "HVA-3374", issue: "is making unusual noises.", timestamp: "2025-06-12T09:00:00Z" },
+  { equipment: "Forklift", part_number: "FOR-5599", issue: "has slow response time.", timestamp: "2025-06-10T08:00:00Z" },
+  { equipment: "Boiler System", part_number: "BOI-9966", issue: "is leaking.", timestamp: "2025-06-11T14:00:00Z" },
+  { equipment: "HVAC Unit", part_number: "HVA-1988", issue: "won’t start.", timestamp: "2025-06-13T11:00:00Z" },
+  { equipment: "Cooling Tower", part_number: "COO-4042", issue: "is vibrating excessively.", timestamp: "2025-06-15T16:00:00Z" },
+  { equipment: "Air Compressor", part_number: "AIR-6523", issue: "has low output.", timestamp: "2025-06-18T10:00:00Z" },
+  { equipment: "Forklift", part_number: "FOR-1980", issue: "has a burning smell.", timestamp: "2025-06-08T07:00:00Z" },
+  { equipment: "Generator", part_number: "GEN-7772", issue: "is making unusual noises.", timestamp: "2025-06-20T13:00:00Z" },
+  { equipment: "CNC Machine", part_number: "CNC-4144", issue: "shows an error code on startup.", timestamp: "2025-06-07T15:00:00Z" },
+  { equipment: "Backup Battery Unit", part_number: "BBU-2211", issue: "has slow response time.", timestamp: "2025-06-09T20:00:00Z" },
+  { equipment: "Hydraulic Press", part_number: "HYD-4821", issue: "stops unexpectedly.", timestamp: "2025-06-11T17:00:00Z" },
+  { equipment: "Conveyor Belt", part_number: "CON-9400", issue: "is overheating.", timestamp: "2025-06-19T19:00:00Z" }
+];
+
+const preloadedSolutions = preloadedQuestions.map(q => ({
+  equipment: q.equipment,
+  issue: q.issue,
+  solution: solutionsByIssue[q.issue],
+  timestamp: new Date(new Date(q.timestamp).getTime() + 3600000).toISOString().split(".")[0] + "Z" // +1 hour
+}));
 
     async function loadQuestions() {
       const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
