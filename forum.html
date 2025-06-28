@@ -132,33 +132,47 @@
   gap: 1rem;
 }
 
+.question-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 .vote-column {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 1.4rem;
-  padding-top: 0.2rem;
   user-select: none;
+  font-size: 1.4rem;
+  margin-right: 0.5rem;
 }
 
-.vote-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+.vote-arrow {
   cursor: pointer;
-  color: #333;
+  color: #aaa;
+  font-weight: bold;
+  font-size: 1.3rem;
   transition: color 0.2s;
-}
-
-.vote-btn:hover {
-  color: #00aaff;
 }
 
 .vote-count {
   font-weight: bold;
-  margin: 0.4rem 0;
+  font-size: 1rem;
+  margin: 0.3rem 0;
+}
 
-    }
+.vote-arrow.upvote.active {
+  color: #ff4500; /* Reddit orange */
+}
+
+.vote-arrow.downvote.active {
+  color: #7193ff; /* Reddit blue */
+}
+
+.vote-arrow:hover {
+  color: #555;
+}
+
   </style>
 </head>
 <body>
@@ -296,16 +310,15 @@ function renderCard(q) {
   const card = document.createElement('div');
   card.className = 'question-card';
 
-  // Randomized vote count
-  let voteCount = Math.floor(Math.random() * 100 - 20); // can be negative
+  let voteCount = Math.floor(Math.random() * 100 - 20);
+  let userVote = 0; // 0 = no vote, 1 = upvoted, -1 = downvoted
 
-  // Container for the vote + content
   card.innerHTML = `
     <div class="question-content">
       <div class="vote-column">
-        <button class="vote-btn" onclick="event.stopPropagation(); voteDisplay.textContent = ++voteCount">⬆</button>
-        <div class="vote-count" id="voteDisplay">${voteCount}</div>
-        <button class="vote-btn" onclick="event.stopPropagation(); voteDisplay.textContent = --voteCount">⬇</button>
+        <div class="vote-arrow upvote">▲</div>
+        <div class="vote-count">${voteCount}</div>
+        <div class="vote-arrow downvote">▼</div>
       </div>
       <div class="question-info">
         <div class="question-title">${q.equipment}</div>
@@ -316,17 +329,55 @@ function renderCard(q) {
     </div>
   `;
 
-  // Attach event listener to open detail view
+  // Handle voting logic
+  const upArrow = card.querySelector('.upvote');
+  const downArrow = card.querySelector('.downvote');
+  const countDisplay = card.querySelector('.vote-count');
+
+  upArrow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (userVote === 1) {
+      userVote = 0;
+      voteCount--;
+      upArrow.classList.remove('active');
+    } else {
+      if (userVote === -1) {
+        voteCount++;
+        downArrow.classList.remove('active');
+      }
+      userVote = 1;
+      voteCount++;
+      upArrow.classList.add('active');
+    }
+    countDisplay.textContent = voteCount;
+  });
+
+  downArrow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (userVote === -1) {
+      userVote = 0;
+      voteCount++;
+      downArrow.classList.remove('active');
+    } else {
+      if (userVote === 1) {
+        voteCount--;
+        upArrow.classList.remove('active');
+      }
+      userVote = -1;
+      voteCount--;
+      downArrow.classList.add('active');
+    }
+    countDisplay.textContent = voteCount;
+  });
+
   card.addEventListener('click', () => {
     previousView = document.getElementById("solutionsSection").classList.contains("hidden") ? 'forum' : 'solutions';
     showQuestionDetail(q);
   });
 
-  // Fix for scope of voteDisplay
-  const voteDisplay = card.querySelector("#voteDisplay");
-
   questionsContainer.appendChild(card);
 }
+
 
 
 
