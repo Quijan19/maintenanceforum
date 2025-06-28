@@ -138,39 +138,39 @@
   gap: 1rem;
 }
 
-.vote-column {
+.vote-row {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
   user-select: none;
-  font-size: 1.4rem;
-  margin-right: 0.5rem;
 }
 
-.vote-arrow {
+.vote-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
   cursor: pointer;
-  color: #aaa;
-  font-weight: bold;
-  font-size: 1.3rem;
+  color: #999;
   transition: color 0.2s;
+}
+
+.vote-btn:hover {
+  color: #333;
+}
+
+.vote-btn.upvote.active {
+  color: #ff4500;
+}
+
+.vote-btn.downvote.active {
+  color: #7193ff;
 }
 
 .vote-count {
   font-weight: bold;
-  font-size: 1rem;
-  margin: 0.3rem 0;
-}
-
-.vote-arrow.upvote.active {
-  color: #ff4500; /* Reddit orange */
-}
-
-.vote-arrow.downvote.active {
-  color: #7193ff; /* Reddit blue */
-}
-
-.vote-arrow:hover {
-  color: #555;
+  font-size: 1.1rem;
 }
 
   </style>
@@ -311,63 +311,60 @@ function renderCard(q) {
   card.className = 'question-card';
 
   let voteCount = Math.floor(Math.random() * 100 - 20);
-  let userVote = 0; // 0 = no vote, 1 = upvoted, -1 = downvoted
+  let userVote = 0;
 
   card.innerHTML = `
-    <div class="question-content">
-      <div class="vote-column">
-        <div class="vote-arrow upvote">▲</div>
-        <div class="vote-count">${voteCount}</div>
-        <div class="vote-arrow downvote">▼</div>
-      </div>
-      <div class="question-info">
-        <div class="question-title">${q.equipment}</div>
-        ${q.part_number ? `<div class="question-meta">Part Number: ${q.part_number}</div>` : ''}
-        <div class="question-meta">Posted on ${new Date(q.timestamp).toLocaleString()}</div>
-        <p>${q.issue}</p>
-      </div>
+    <div class="question-info">
+      <div class="question-title">${q.equipment}</div>
+      ${q.part_number ? `<div class="question-meta">Part Number: ${q.part_number}</div>` : ''}
+      <div class="question-meta">Posted on ${new Date(q.timestamp).toLocaleString()}</div>
+      <p>${q.issue}</p>
+    </div>
+    <div class="vote-row">
+      <button class="vote-btn upvote">▲</button>
+      <span class="vote-count">${voteCount}</span>
+      <button class="vote-btn downvote">▼</button>
     </div>
   `;
 
-  // Handle voting logic
-  const upArrow = card.querySelector('.upvote');
-  const downArrow = card.querySelector('.downvote');
-  const countDisplay = card.querySelector('.vote-count');
+  const upBtn = card.querySelector('.upvote');
+  const downBtn = card.querySelector('.downvote');
+  const voteDisplay = card.querySelector('.vote-count');
 
-  upArrow.addEventListener('click', (e) => {
+  upBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (userVote === 1) {
       userVote = 0;
       voteCount--;
-      upArrow.classList.remove('active');
+      upBtn.classList.remove('active');
     } else {
       if (userVote === -1) {
+        downBtn.classList.remove('active');
         voteCount++;
-        downArrow.classList.remove('active');
       }
       userVote = 1;
       voteCount++;
-      upArrow.classList.add('active');
+      upBtn.classList.add('active');
     }
-    countDisplay.textContent = voteCount;
+    voteDisplay.textContent = voteCount;
   });
 
-  downArrow.addEventListener('click', (e) => {
+  downBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (userVote === -1) {
       userVote = 0;
       voteCount++;
-      downArrow.classList.remove('active');
+      downBtn.classList.remove('active');
     } else {
       if (userVote === 1) {
+        upBtn.classList.remove('active');
         voteCount--;
-        upArrow.classList.remove('active');
       }
       userVote = -1;
       voteCount--;
-      downArrow.classList.add('active');
+      downBtn.classList.add('active');
     }
-    countDisplay.textContent = voteCount;
+    voteDisplay.textContent = voteCount;
   });
 
   card.addEventListener('click', () => {
@@ -377,7 +374,6 @@ function renderCard(q) {
 
   questionsContainer.appendChild(card);
 }
-
 
 
 
