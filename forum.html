@@ -142,35 +142,47 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 1.2rem;
   user-select: none;
+  font-size: 1rem;
 }
 
 .vote-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
   cursor: pointer;
-  color: #999;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
+  color: #444;
 }
 
 .vote-btn:hover {
-  color: #333;
+  background-color: #e6f7ff;
+  border-color: #00aaff;
 }
 
 .vote-btn.upvote.active {
-  color: #ff4500;
+  background-color: #d4f4dd;
+  border-color: #00c851;
+  color: #006e2e;
+  font-weight: bold;
 }
 
 .vote-btn.downvote.active {
-  color: #7193ff;
+  background-color: #ffe6e6;
+  border-color: #ff4444;
+  color: #cc0000;
+  font-weight: bold;
 }
 
 .vote-count {
   font-weight: bold;
   font-size: 1.1rem;
+}
+
 }
 
   </style>
@@ -321,10 +333,11 @@ function renderCard(q) {
       <p>${q.issue}</p>
     </div>
     <div class="vote-row">
-      <button class="vote-btn upvote">▲</button>
-      <span class="vote-count">${voteCount}</span>
-      <button class="vote-btn downvote">▼</button>
-    </div>
+  <button class="vote-btn upvote" title="This is helpful or valuable">👍 Upvote</button>
+  <span class="vote-count">${voteCount}</span>
+  <button class="vote-btn downvote" title="This is off-topic or not helpful">👎 Downvote</button>
+</div>
+
   `;
 
   const upBtn = card.querySelector('.upvote');
