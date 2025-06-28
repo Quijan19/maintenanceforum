@@ -566,16 +566,5 @@ function renderCard(q) {
 
     loadQuestions();
   });
-
-    function searchGoogle() {
-  const input = document.getElementById('chat-input');
-  const query = input.value.trim();
-  if (query) {
-    const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query + " maintenance site:reddit.com OR site:stackexchange.com")}`;
-    window.open(googleUrl, '_blank');
-    input.value = '';
-  }
-}
-
-    
+ 
 </script>
