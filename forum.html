@@ -142,8 +142,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1.2rem;
+  gap: 1.5rem;
+  margin-top: 1rem;
   user-select: none;
   font-size: 1rem;
 }
@@ -156,6 +156,9 @@
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   color: #444;
 }
 
@@ -178,12 +181,12 @@
   font-weight: bold;
 }
 
-.vote-count {
+.up-count, .down-count {
   font-weight: bold;
-  font-size: 1.1rem;
+  min-width: 1.2rem;
+  text-align: center;
 }
 
-}
 
   </style>
 </head>
@@ -322,8 +325,9 @@ function renderCard(q) {
   const card = document.createElement('div');
   card.className = 'question-card';
 
-  let voteCount = Math.floor(Math.random() * 100 - 20);
-  let userVote = 0;
+  let upCount = Math.floor(Math.random() * 100);
+  let downCount = Math.floor(Math.random() * 50);
+  let userVote = 0; // 0 = no vote, 1 = upvoted, -1 = downvoted
 
   card.innerHTML = `
     <div class="question-info">
@@ -333,51 +337,52 @@ function renderCard(q) {
       <p>${q.issue}</p>
     </div>
     <div class="vote-row">
-  <button class="vote-btn upvote" title="This is helpful or valuable">👍 Upvote</button>
-  <span class="vote-count">${voteCount}</span>
-  <button class="vote-btn downvote" title="This is off-topic or not helpful">👎 Downvote</button>
-</div>
-
+      <button class="vote-btn upvote" title="Helpful">👍 <span class="up-count">${upCount}</span></button>
+      <button class="vote-btn downvote" title="Not helpful">👎 <span class="down-count">${downCount}</span></button>
+    </div>
   `;
 
   const upBtn = card.querySelector('.upvote');
   const downBtn = card.querySelector('.downvote');
-  const voteDisplay = card.querySelector('.vote-count');
+  const upDisplay = card.querySelector('.up-count');
+  const downDisplay = card.querySelector('.down-count');
 
   upBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (userVote === 1) {
       userVote = 0;
-      voteCount--;
+      upCount--;
       upBtn.classList.remove('active');
     } else {
       if (userVote === -1) {
+        downCount--;
         downBtn.classList.remove('active');
-        voteCount++;
+        downDisplay.textContent = downCount;
       }
       userVote = 1;
-      voteCount++;
+      upCount++;
       upBtn.classList.add('active');
     }
-    voteDisplay.textContent = voteCount;
+    upDisplay.textContent = upCount;
   });
 
   downBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (userVote === -1) {
       userVote = 0;
-      voteCount++;
+      downCount--;
       downBtn.classList.remove('active');
     } else {
       if (userVote === 1) {
+        upCount--;
         upBtn.classList.remove('active');
-        voteCount--;
+        upDisplay.textContent = upCount;
       }
       userVote = -1;
-      voteCount--;
+      downCount++;
       downBtn.classList.add('active');
     }
-    voteDisplay.textContent = voteCount;
+    downDisplay.textContent = downCount;
   });
 
   card.addEventListener('click', () => {
