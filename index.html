@@ -6,6 +6,11 @@
   <title>Maintenance Help Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  emailjs.init("yZctZWBOCU5KBIdsz");
+</script>
+
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
@@ -182,10 +187,27 @@
     <section>
       <h3>📬 Stay Updated</h3>
       <p>Get maintenance tips and updates straight to your inbox.</p>
-      <form action="https://yourmailchimpurl" method="POST" target="_blank" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
-        <input type="email" name="EMAIL" placeholder="Your email address" required style="padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; width: 60%;">
-        <button type="submit" style="padding: 0.8rem 1.5rem; background-color: #00d084; color: white; border: none; border-radius: 8px; cursor: pointer;">Subscribe</button>
-      </form>
+    <form id="subscribeForm" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+  <input 
+    type="email" 
+    id="subscriberEmail" 
+    name="subscriberEmail" 
+    placeholder="Your email address" 
+    required 
+    style="padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; width: 60%;"
+  >
+  <button 
+    type="submit" 
+    style="padding: 0.8rem 1.5rem; background-color: #00d084; color: white; border: none; border-radius: 8px; cursor: pointer;"
+  >
+    Subscribe
+  </button>
+</form>
+
+<!-- Feedback message (optional) -->
+<p id="subscribeStatus" style="margin-top: 1rem; color: green; font-weight: bold;"></p>
+
+
     </section>
 
     <footer>
@@ -235,6 +257,46 @@
         document.getElementById("password").value = '';
       };
     });
+    // EmailJS Subscribe Handler
+document.getElementById("subscribeForm").addEventListener("submit", function(event) {
+  event.preventDefault(); // Stop the page from refreshing
+
+  const email = document.getElementById("subscriberEmail").value; // Grab email input
+  const statusText = document.getElementById("subscribeStatus");  // Element to show feedback
+
+  emailjs.send("themaintenanceforum@gmail.com", "template_f76ejm5", {
+    user_email: email,
+    from_name: "The Maintenance Forum",
+    message: "Welcome to the Maintenance Forum newsletter! 👋
+
+We're excited to have you on board. As part of our community, you'll receive:
+
+🔧 Expert maintenance tips  
+📦 Updates on common equipment issues  
+📘 Guides to improve equipment reliability  
+📣 Announcements about new features or solutions  
+
+We promise to keep emails helpful, relevant, and never spammy.
+
+If you ever have a maintenance question, don’t hesitate to post it on our forum or reach out directly.
+
+Thanks for subscribing!
+
+– The Maintenance Forum Team  
+📬 themaintenanceforum@gmail.com  
+🌐 www.yourforumwebsite.com"
+  })
+  .then(function(response) {
+    statusText.style.color = "green";
+    statusText.textContent = "Thanks! Check your inbox shortly.";
+    document.getElementById("subscribeForm").reset(); // Clear input
+  }, function(error) {
+    statusText.style.color = "red";
+    statusText.textContent = "Oops, failed to send. Try again.";
+    console.error('EmailJS error:', error);
+  });
+});
+
   </script>
 </body>
 </html>
