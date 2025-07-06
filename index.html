@@ -258,10 +258,16 @@
     }
   }
 
-  function logout() {
+async function logout() {
+  const { error } = await client.auth.signOut();
+  if (error) {
+    alert("Logout failed: " + error.message);
+  } else {
     alert("You have been logged out.");
-    window.location.href = "index.html";
+    window.location.href = "index.html"; // Or wherever your login page is
   }
+}
+
 
   function toggleView() {
     const qa = document.getElementById("qaSection");
