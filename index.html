@@ -264,10 +264,22 @@ document.getElementById("subscribeForm").addEventListener("submit", function(eve
   const email = document.getElementById("subscriberEmail").value; // Grab email input
   const statusText = document.getElementById("subscribeStatus");  // Element to show feedback
 
- emailjs.send("The Maintenance Forum", "template_f76ejm5", {
-  user_email: email,
-  from_name: "The Maintenance Forum",
-  message: `Welcome to the Maintenance Forum newsletter! 👋
+ document.getElementById("subscribeForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const email = document.getElementById("subscriberEmail").value.trim();
+  const statusText = document.getElementById("subscribeStatus");
+
+  if (!email) {
+    statusText.style.color = "red";
+    statusText.textContent = "Please enter a valid email address.";
+    return;
+  }
+
+  emailjs.send("service_gmail", "template_f76ejm5", {
+    user_email: email,
+    from_name: "The Maintenance Forum",
+    message: `Welcome to the Maintenance Forum newsletter! 👋
 
 We're excited to have you on board. As part of our community, you'll receive:
 
@@ -285,17 +297,18 @@ Thanks for subscribing!
 – The Maintenance Forum Team  
 📬 themaintenanceforum@gmail.com  
 🌐 www.yourforumwebsite.com`
-})
+  })
   .then(function(response) {
     statusText.style.color = "green";
     statusText.textContent = "Thanks! Check your inbox shortly.";
-    document.getElementById("subscribeForm").reset(); // Clear input
+    document.getElementById("subscribeForm").reset();
   }, function(error) {
     statusText.style.color = "red";
     statusText.textContent = "Oops, failed to send. Try again.";
     console.error('EmailJS error:', error);
   });
 });
+
 
   </script>
 </body>
