@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Maintenance Q&A Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <style>
@@ -21,32 +21,30 @@
       position: relative;
     }
 
-    .top-button {
+    .top-button, .logout-btn {
       position: absolute;
       top: 2rem;
-      background-color: #00d084;
-      color: white;
       padding: 0.8rem 1.5rem;
       font-size: 1rem;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      color: white;
     }
 
-    #foundSolutionsBtn { right: 2rem; }
-    #backButton { right: 2rem; }
-
     .logout-btn {
-      position: absolute;
-      top: 2rem;
       left: 2rem;
       background-color: #d00000;
-      color: white;
-      border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
+    }
+
+    #foundSolutionsBtn {
+      right: 2rem;
+      background-color: #00d084;
+    }
+
+    #backButton {
+      right: 2rem;
+      background-color: #00d084;
     }
 
     main {
@@ -109,6 +107,32 @@
       margin: 0.5rem 0 1rem;
     }
 
+    .vote-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .vote-btn {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .vote-btn:hover { background-color: #e6f7ff; border-color: #00aaff; }
+    .vote-btn.upvote.active { background-color: #d4f4dd; border-color: #00c851; color: #006e2e; font-weight: bold; }
+    .vote-btn.downvote.active { background-color: #ffe6e6; border-color: #ff4444; color: #cc0000; font-weight: bold; }
+
+    .hidden { display: none; }
+
     footer {
       background-color: #000;
       color: white;
@@ -116,107 +140,26 @@
       text-align: center;
       margin-top: 4rem;
     }
-
-    .hidden {
-      display: none;
-      .vote-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.question-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.question-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.vote-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.5rem;
-  margin-top: 1rem;
-  user-select: none;
-  font-size: 1rem;
-}
-
-.vote-btn {
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: #444;
-}
-
-.vote-btn:hover {
-  background-color: #e6f7ff;
-  border-color: #00aaff;
-}
-
-.vote-btn.upvote.active {
-  background-color: #d4f4dd;
-  border-color: #00c851;
-  color: #006e2e;
-  font-weight: bold;
-}
-
-.vote-btn.downvote.active {
-  background-color: #ffe6e6;
-  border-color: #ff4444;
-  color: #cc0000;
-  font-weight: bold;
-}
-
-.up-count, .down-count {
-  font-weight: bold;
-  min-width: 1.2rem;
-  text-align: center;
-}
-<!-- EmailJS script (add this inside <head>) -->
-<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-<script>
-  (function(){
-    emailjs.init("yZctZWBOCU5KBIdsz"); // 🔁 Replace with your EmailJS public key
-  })();
-</script>
-
-
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
   <header>
     <h1>Maintenance Q&A Forum</h1>
     <p>Post your questions. View community solutions.</p>
     <button class="logout-btn" onclick="logout()">Logout</button>
     <button id="foundSolutionsBtn" class="top-button" onclick="toggleView()">Found Solutions</button>
-    <button id="backButton" class="top-button hidden" onclick="toggleView()">← Back</button>
+    <button id="backButton" class="top-button hidden" onclick="toggleView()">&larr; Back</button>
   </header>
 
   <main id="qaSection">
     <h2>Ask a New Question</h2>
     <form id="questionForm">
-      <input type="text" id="equipmentName" placeholder="Equipment Name (e.g., Generator)" required />
-      <input type="text" id="partNumber" placeholder="Part Number (e.g., PN-4580A)" />
-      <input type="email" id="userEmail" placeholder="Your Email Address" required />
+      <input type="text" id="equipmentName" placeholder="Equipment Name" required />
+      <input type="text" id="partNumber" placeholder="Part Number (optional)" />
       <textarea id="issue" rows="4" placeholder="Describe the maintenance issue..." required></textarea>
       <button type="submit">Post Question</button>
     </form>
-
     <h2>Community Questions</h2>
     <div id="questionsContainer"></div>
   </main>
@@ -230,68 +173,17 @@
     <h2>Proposed Solution</h2>
     <div id="selectedQuestionDetail" class="solution-card"></div>
     <div style="text-align: center;">
-      <button onclick="alert('Post your solution feature coming soon!')">Post a Solution</button>
-      <button onclick="alert('Viewing all community solutions...')">Review Solutions</button>
-      <button onclick="showForum()">← Return to Forum</button>
+      <button onclick="alert('Feature coming soon!')">Post a Solution</button>
+      <button onclick="alert('Viewing community solutions...')">Review Solutions</button>
+      <button onclick="showForum()">&larr; Return to Forum</button>
     </div>
   </main>
-  
-  </div>
-</div>
 
   <footer>
-    <p>&copy; 2025 • Maintenance Forum : Qui' Jan Otis, Ian O'Toole, Mackenzie Goodrich</p>
+    <p>&copy; 2025 Maintenance Forum</p>
   </footer>
 
-  <!-- Load Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-
-  <!-- Run App Logic After Supabase Loads -->
-  <script defer>
-  let previousView = 'forum'; // Tracks where user came from
-
-  function showForum() {
-    document.getElementById("questionDetailSection").classList.add("hidden");
-
-    if (previousView === 'solutions') {
-      document.getElementById("solutionsSection").classList.remove("hidden");
-      document.getElementById("qaSection").classList.add("hidden");
-      document.getElementById("backButton").classList.remove("hidden");
-      document.getElementById("foundSolutionsBtn").classList.add("hidden");
-    } else {
-      document.getElementById("qaSection").classList.remove("hidden");
-      document.getElementById("solutionsSection").classList.add("hidden");
-      document.getElementById("backButton").classList.add("hidden");
-      document.getElementById("foundSolutionsBtn").classList.remove("hidden");
-    }
-  }
-
-  function logout() {
-    alert("You have been logged out.");
-    window.location.href = "index.html";
-  }
-
-  function toggleView() {
-    const qa = document.getElementById("qaSection");
-    const sol = document.getElementById("solutionsSection");
-    const back = document.getElementById("backButton");
-    const found = document.getElementById("foundSolutionsBtn");
-
-    if (qa.classList.contains("hidden")) {
-      qa.classList.remove("hidden");
-      sol.classList.add("hidden");
-      back.classList.add("hidden");
-      found.classList.remove("hidden");
-    } else {
-      qa.classList.add("hidden");
-      sol.classList.remove("hidden");
-      back.classList.remove("hidden");
-      found.classList.add("hidden");
-      renderSolutions();
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", async () => {
+  <script>
     const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -300,237 +192,61 @@
     const questionsContainer = document.getElementById('questionsContainer');
     const solutionContainer = document.getElementById('solutionContainer');
 
-   const equipmentTypes = [
-  "Air Compressor", "HVAC Unit", "CNC Machine", "Forklift", "Generator",
-  "Hydraulic Press", "Boiler System", "Backup Battery Unit", "Conveyor Belt", "Cooling Tower"
-];
-
-const issues = [
-  "is making unusual noises.",
-  "won’t start.",
-  "is overheating.",
-  "is leaking.",
-  "has low output.",
-  "stops unexpectedly.",
-  "has a burning smell.",
-  "is vibrating excessively.",
-  "shows an error code on startup.",
-  "has slow response time."
-];
-
-const solutionsByIssue = {
-  "is making unusual noises.": "Tighten all external bolts and inspect for loose panels.",
-  "won’t start.": "Check the power supply and inspect the starter motor.",
-  "is overheating.": "Clean the cooling fins and check coolant levels.",
-  "is leaking.": "Inspect all seals and replace any damaged gaskets.",
-  "has low output.": "Check pressure settings and clean the filters.",
-  "stops unexpectedly.": "Inspect power connections and check for tripped breakers.",
-  "has a burning smell.": "Shut down immediately and inspect wiring and motor.",
-  "is vibrating excessively.": "Check alignment and inspect mounting brackets.",
-  "shows an error code on startup.": "Refer to the manual and reset the control panel.",
-  "has slow response time.": "Check system latency and inspect signal cables."
-};
-
-const preloadedQuestions = [
-  { equipment: "CNC Machine", part_number: "CNC-5048", issue: "is overheating.", timestamp: "2025-06-14T22:00:00Z" },
-  { equipment: "Cooling Tower", part_number: "COO-9134", issue: "stops unexpectedly.", timestamp: "2025-06-16T03:00:00Z" },
-  { equipment: "Hydraulic Press", part_number: "HYD-1661", issue: "is overheating.", timestamp: "2025-06-09T04:00:00Z" },
-  { equipment: "Boiler System", part_number: "BOI-2443", issue: "has low output.", timestamp: "2025-06-16T21:00:00Z" },
-  { equipment: "Generator", part_number: "GEN-4946", issue: "won’t start.", timestamp: "2025-06-17T22:00:00Z" },
-  { equipment: "Conveyor Belt", part_number: "CON-8233", issue: "has a burning smell.", timestamp: "2025-06-14T15:00:00Z" },
-  { equipment: "Backup Battery Unit", part_number: "BBU-7030", issue: "shows an error code on startup.", timestamp: "2025-06-06T18:00:00Z" },
-  { equipment: "Air Compressor", part_number: "AIR-2033", issue: "is leaking.", timestamp: "2025-06-19T12:00:00Z" },
-  { equipment: "HVAC Unit", part_number: "HVA-3374", issue: "is making unusual noises.", timestamp: "2025-06-12T09:00:00Z" },
-  { equipment: "Forklift", part_number: "FOR-5599", issue: "has slow response time.", timestamp: "2025-06-10T08:00:00Z" },
-  { equipment: "Boiler System", part_number: "BOI-9966", issue: "is leaking.", timestamp: "2025-06-11T14:00:00Z" },
-  { equipment: "HVAC Unit", part_number: "HVA-1988", issue: "won’t start.", timestamp: "2025-06-13T11:00:00Z" },
-  { equipment: "Cooling Tower", part_number: "COO-4042", issue: "is vibrating excessively.", timestamp: "2025-06-15T16:00:00Z" },
-  { equipment: "Air Compressor", part_number: "AIR-6523", issue: "has low output.", timestamp: "2025-06-18T10:00:00Z" },
-  { equipment: "Forklift", part_number: "FOR-1980", issue: "has a burning smell.", timestamp: "2025-06-08T07:00:00Z" },
-  { equipment: "Generator", part_number: "GEN-7772", issue: "is making unusual noises.", timestamp: "2025-06-20T13:00:00Z" },
-  { equipment: "CNC Machine", part_number: "CNC-4144", issue: "shows an error code on startup.", timestamp: "2025-06-07T15:00:00Z" },
-  { equipment: "Backup Battery Unit", part_number: "BBU-2211", issue: "has slow response time.", timestamp: "2025-06-09T20:00:00Z" },
-  { equipment: "Hydraulic Press", part_number: "HYD-4821", issue: "stops unexpectedly.", timestamp: "2025-06-11T17:00:00Z" },
-  { equipment: "Conveyor Belt", part_number: "CON-9400", issue: "is overheating.", timestamp: "2025-06-19T19:00:00Z" }
-];
-
-const preloadedSolutions = preloadedQuestions.map(q => ({
-  equipment: q.equipment,
-  issue: q.issue,
-  solution: solutionsByIssue[q.issue],
-  timestamp: new Date(new Date(q.timestamp).getTime() + 3600000).toISOString().split(".")[0] + "Z" // +1 hour
-}));
-
- async function loadQuestions() {
-  const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
-
-  questionsContainer.innerHTML = '';
-
-  // 1. Render real questions first (most recent first)
-  if (realData) realData.forEach(renderCard);
-
-  // 2. Render preloaded demo questions next
-  preloadedQuestions.forEach(renderCard);
-
-  // 3. Add some random ones for variety
-  for (let i = 0; i < 5; i++) {
-    const q = {
-      equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
-      part_number: "PN-" + Math.floor(Math.random() * 9999),
-      issue: issues[Math.floor(Math.random() * issues.length)],
-      timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
-    };
-    renderCard(q);
-  }
-}
-
-
-function renderCard(q) {
-  const card = document.createElement('div');
-  card.className = 'question-card';
-
-  let upCount = Math.floor(Math.random() * 100);
-  let downCount = Math.floor(Math.random() * 50);
-  let userVote = 0; // 0 = no vote, 1 = upvoted, -1 = downvoted
-
-  card.innerHTML = `
-    <div class="question-info">
-      <div class="question-title">${q.equipment}</div>
-      ${q.part_number ? `<div class="question-meta">Part Number: ${q.part_number}</div>` : ''}
-      <div class="question-meta">Posted on ${new Date(q.timestamp).toLocaleString()}</div>
-      <p>${q.issue}</p>
-    </div>
-    <div class="vote-row">
-      <button class="vote-btn upvote" title="Helpful">👍 <span class="up-count">${upCount}</span></button>
-      <button class="vote-btn downvote" title="Not helpful">👎 <span class="down-count">${downCount}</span></button>
-    </div>
-  `;
-
-  const upBtn = card.querySelector('.upvote');
-  const downBtn = card.querySelector('.downvote');
-  const upDisplay = card.querySelector('.up-count');
-  const downDisplay = card.querySelector('.down-count');
-
-  upBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (userVote === 1) {
-      userVote = 0;
-      upCount--;
-      upBtn.classList.remove('active');
-    } else {
-      if (userVote === -1) {
-        downCount--;
-        downBtn.classList.remove('active');
-        downDisplay.textContent = downCount;
-      }
-      userVote = 1;
-      upCount++;
-      upBtn.classList.add('active');
-    }
-    upDisplay.textContent = upCount;
-  });
-
-  downBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (userVote === -1) {
-      userVote = 0;
-      downCount--;
-      downBtn.classList.remove('active');
-    } else {
-      if (userVote === 1) {
-        upCount--;
-        upBtn.classList.remove('active');
-        upDisplay.textContent = upCount;
-      }
-      userVote = -1;
-      downCount++;
-      downBtn.classList.add('active');
-    }
-    downDisplay.textContent = downCount;
-  });
-
-  card.addEventListener('click', () => {
-    previousView = document.getElementById("solutionsSection").classList.contains("hidden") ? 'forum' : 'solutions';
-    showQuestionDetail(q);
-  });
-
-  questionsContainer.appendChild(card);
-}
-
-
-
-   questionForm.addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const equipment = document.getElementById('equipmentName').value.trim();
-  const partNumber = document.getElementById('partNumber').value.trim();
-  const issue = document.getElementById('issue').value.trim();
-  const email = document.getElementById('userEmail').value.trim();
-
-  // 1. Save to Supabase
-  const { error } = await client.from('questions').insert([
-    { equipment, part_number: partNumber, issue }
-  ]);
-
-  if (error) {
-    alert('Error saving to Supabase.');
-    console.error(error);
-    return;
-  }
-
-  // 2. Send email via EmailJS
-  emailjs.send('themaintenanceforum@gmail.com', 'template_f76ejm5', {
-    equipment: equipment,
-    part_number: partNumber,
-    issue: issue,
-    email: email
-  })
-  .then(function(response) {
-    alert('Question submitted and email sent!');
-    console.log('Email success:', response.status, response.text);
-  }, function(error) {
-    alert('Email failed to send.');
-    console.error('Email error:', error);
-  });
-
-  // 3. Reset and reload
-  questionForm.reset();
-  loadQuestions();
-});
-
-
-    function renderSolutions() {
-      solutionContainer.innerHTML = '';
-      preloadedSolutions.forEach(s => {
-        const card = document.createElement("div");
-        card.className = "solution-card";
-        card.innerHTML = `
-          <div class="solution-title">${s.equipment} ${s.issue}</div>
-          <div class="solution-meta">Reported on ${new Date(s.timestamp).toLocaleString()}</div>
-          <p><strong>Solution:</strong> ${s.solution}</p>
-        `;
-        solutionContainer.appendChild(card);
-      });
+    function logout() {
+      alert("You have been logged out.");
+      window.location.href = "index.html";
     }
 
-    function showQuestionDetail(question) {
-      const match = preloadedSolutions.find(sol =>
-        sol.equipment === question.equipment && sol.issue === question.issue
-      );
-      const container = document.getElementById("selectedQuestionDetail");
-      container.innerHTML = `
-        <div class="solution-title">${question.equipment}</div>
-        ${question.part_number ? `<div class="solution-meta">Part Number: ${question.part_number}</div>` : ''}
-        <div class="solution-meta">Posted on ${new Date(question.timestamp).toLocaleString()}</div>
-        <p><strong>Issue:</strong> ${question.issue}</p>
-        <p><strong>Solution:</strong> ${match ? match.solution : 'No solution found yet. Be the first to post one!'}</p>
+    function toggleView() {
+      document.getElementById("qaSection").classList.toggle("hidden");
+      document.getElementById("solutionsSection").classList.toggle("hidden");
+      document.getElementById("backButton").classList.toggle("hidden");
+      document.getElementById("foundSolutionsBtn").classList.toggle("hidden");
+    }
+
+    function showForum() {
+      document.getElementById("questionDetailSection").classList.add("hidden");
+      document.getElementById("qaSection").classList.remove("hidden");
+    }
+
+    function renderCard(q) {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.innerHTML = `
+        <div class="question-title">${q.equipment}</div>
+        ${q.part_number ? `<div class="question-meta">Part #: ${q.part_number}</div>` : ''}
+        <div class="question-meta">${new Date(q.timestamp).toLocaleString()}</div>
+        <p>${q.issue}</p>
       `;
-      document.getElementById("qaSection").classList.add("hidden");
-      document.getElementById("solutionsSection").classList.add("hidden");
-      document.getElementById("questionDetailSection").classList.remove("hidden");
+      questionsContainer.appendChild(card);
     }
 
-    loadQuestions();
-  });
- 
-</script>
+    questionForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const equipment = document.getElementById('equipmentName').value.trim();
+      const partNumber = document.getElementById('partNumber').value.trim();
+      const issue = document.getElementById('issue').value.trim();
+
+      const { error } = await client.from('questions').insert([
+        { equipment, part_number: partNumber, issue, timestamp: new Date().toISOString() }
+      ]);
+
+      if (error) return alert("Failed to save question.");
+
+      alert("Question posted!");
+      questionForm.reset();
+      loadQuestions();
+    });
+
+    async function loadQuestions() {
+      const { data, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+      if (!error && data) {
+        questionsContainer.innerHTML = '';
+        data.forEach(renderCard);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadQuestions);
+  </script>
+</body>
+</html>
