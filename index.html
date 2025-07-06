@@ -257,14 +257,8 @@
         document.getElementById("password").value = '';
       };
     });
-    // EmailJS Subscribe Handler
+   // ✅ EmailJS Subscribe Handler — FIXED
 document.getElementById("subscribeForm").addEventListener("submit", function(event) {
-  event.preventDefault(); // Stop the page from refreshing
-
-  const email = document.getElementById("subscriberEmail").value; // Grab email input
-  const statusText = document.getElementById("subscribeStatus");  // Element to show feedback
-
- document.getElementById("subscribeForm").addEventListener("submit", function(event) {
   event.preventDefault();
 
   const email = document.getElementById("subscriberEmail").value.trim();
@@ -308,6 +302,7 @@ Thanks for subscribing!
     console.error('EmailJS error:', error);
   });
 });
+
 
 
   </script>
