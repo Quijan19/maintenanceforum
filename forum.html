@@ -186,6 +186,13 @@
   min-width: 1.2rem;
   text-align: center;
 }
+<!-- EmailJS script (add this inside <head>) -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script>
+  (function(){
+    emailjs.init("yZctZWBOCU5KBIdsz"); // 🔁 Replace with your EmailJS public key
+  })();
+</script>
 
 
   </style>
@@ -205,6 +212,7 @@
     <form id="questionForm">
       <input type="text" id="equipmentName" placeholder="Equipment Name (e.g., Generator)" required />
       <input type="text" id="partNumber" placeholder="Part Number (e.g., PN-4580A)" />
+      <input type="email" id="userEmail" placeholder="Your Email Address" required />
       <textarea id="issue" rows="4" placeholder="Describe the maintenance issue..." required></textarea>
       <button type="submit">Post Question</button>
     </form>
@@ -451,23 +459,45 @@ function renderCard(q) {
 
 
 
-    questionForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const equipment = document.getElementById('equipmentName').value.trim();
-      const partNumber = document.getElementById('partNumber').value.trim();
-      const issue = document.getElementById('issue').value.trim();
-      if (equipment && issue) {
-        const { error } = await client.from('questions').insert([{ equipment, part_number: partNumber, issue }]);
-        if (error) {
-          alert('Error saving question.');
-          console.error(error);
-        } else {
-          alert('Question posted!');
-          questionForm.reset();
-          loadQuestions();
-        }
-      }
-    });
+   questionForm.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const equipment = document.getElementById('equipmentName').value.trim();
+  const partNumber = document.getElementById('partNumber').value.trim();
+  const issue = document.getElementById('issue').value.trim();
+  const email = document.getElementById('userEmail').value.trim();
+
+  // 1. Save to Supabase
+  const { error } = await client.from('questions').insert([
+    { equipment, part_number: partNumber, issue }
+  ]);
+
+  if (error) {
+    alert('Error saving to Supabase.');
+    console.error(error);
+    return;
+  }
+
+  // 2. Send email via EmailJS
+  emailjs.send('themaintenanceforum@gmail.com', 'template_f76ejm5', {
+    equipment: equipment,
+    part_number: partNumber,
+    issue: issue,
+    email: email
+  })
+  .then(function(response) {
+    alert('Question submitted and email sent!');
+    console.log('Email success:', response.status, response.text);
+  }, function(error) {
+    alert('Email failed to send.');
+    console.error('Email error:', error);
+  });
+
+  // 3. Reset and reload
+  questionForm.reset();
+  loadQuestions();
+});
+
 
     function renderSolutions() {
       solutionContainer.innerHTML = '';
