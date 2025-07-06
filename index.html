@@ -182,11 +182,9 @@
     <section>
       <h3>📬 Stay Updated</h3>
       <p>Get maintenance tips and updates straight to your inbox.</p>
-      <form id="subscribeForm">
-  <input type="email" id="subscriberEmail" placeholder="Your Email Address" required />
-  <button type="submit">Subscribe</button>
-</form>
-
+      <form action="https://yourmailchimpurl" method="POST" target="_blank" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+        <input type="email" name="EMAIL" placeholder="Your email address" required style="padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc; width: 60%;">
+        <button type="submit" style="padding: 0.8rem 1.5rem; background-color: #00d084; color: white; border: none; border-radius: 8px; cursor: pointer;">Subscribe</button>
       </form>
     </section>
 
@@ -209,26 +207,6 @@
         document.getElementById("loginBox").style.display = "none";
         document.getElementById("mainContent").classList.remove("hidden");
       }
-      const subscribeForm = document.getElementById("subscribeForm");
-
-subscribeForm.addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const email = document.getElementById("subscriberEmail").value.trim();
-
-  emailjs.send('themaintenanceforum@gmail.com', 'template_f76ejm5', {
-    email: email
-  })
-  .then(function(response) {
-    alert("You're subscribed! 🎉");
-    console.log('Email sent:', response.status, response.text);
-    subscribeForm.reset();
-  }, function(error) {
-    alert("Subscription failed. Please try again.");
-    console.error('EmailJS error:', error);
-  });
-});
-
 
       // Login form handler
       document.getElementById("loginForm").addEventListener("submit", async (event) => {
