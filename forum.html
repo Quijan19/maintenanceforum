@@ -3,72 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maintenance Q&A Forum</title>
+  <title>Login | Maintenance Forum</title>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
-      background-color: #ffffff;
       margin: 0;
-      color: #111;
+      padding: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
 
-    header {
-      background-color: #000;
-      color: white;
-      padding: 2rem;
+    .login-container {
+      background: white;
+      padding: 3rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
       text-align: center;
-      position: relative;
     }
 
-    .top-button, .logout-btn {
-      position: absolute;
-      top: 2rem;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
-    }
-
-    .logout-btn {
-      left: 2rem;
-      background-color: #d00000;
-    }
-
-    #foundSolutionsBtn {
-      right: 2rem;
-      background-color: #00d084;
-    }
-
-    #backButton {
-      right: 2rem;
-      background-color: #00d084;
-    }
-
-    main {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 1rem;
-    }
-
-    h2 {
-      font-size: 2rem;
-      color: #444;
-      text-align: center;
+    h1 {
       margin-bottom: 2rem;
+      color: #333;
     }
 
-    form {
-      background-color: #f5f5f5;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.05);
-      margin-bottom: 2rem;
-    }
-
-    input, textarea {
+    input[type="email"],
+    input[type="password"] {
       width: 100%;
       padding: 1rem;
       margin-bottom: 1.5rem;
@@ -85,168 +50,57 @@
       font-size: 1rem;
       border-radius: 8px;
       cursor: pointer;
+      width: 100%;
     }
 
-    .question-card, .solution-card {
-      background: #f5f5f5;
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 0 6px rgba(0,0,0,0.08);
+    button:hover {
+      background-color: #00b374;
     }
 
-    .question-title, .solution-title {
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #111;
-    }
-
-    .question-meta, .solution-meta {
-      color: #666;
-      font-size: 0.9rem;
-      margin: 0.5rem 0 1rem;
-    }
-
-    .vote-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1.5rem;
+    .message {
       margin-top: 1rem;
-    }
-
-    .vote-btn {
-      background-color: #f0f0f0;
-      border: 1px solid #ccc;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-
-    .vote-btn:hover { background-color: #e6f7ff; border-color: #00aaff; }
-    .vote-btn.upvote.active { background-color: #d4f4dd; border-color: #00c851; color: #006e2e; font-weight: bold; }
-    .vote-btn.downvote.active { background-color: #ffe6e6; border-color: #ff4444; color: #cc0000; font-weight: bold; }
-
-    .hidden { display: none; }
-
-    footer {
-      background-color: #000;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      margin-top: 4rem;
+      font-size: 0.9rem;
+      color: red;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <header>
-    <h1>Maintenance Q&A Forum</h1>
-    <p>Post your questions. View community solutions.</p>
-    <button class="logout-btn" onclick="logout()">Logout</button>
-    <button id="foundSolutionsBtn" class="top-button" onclick="toggleView()">Found Solutions</button>
-    <button id="backButton" class="top-button hidden" onclick="toggleView()">&larr; Back</button>
-  </header>
-
-  <main id="qaSection">
-    <h2>Ask a New Question</h2>
-    <form id="questionForm">
-      <input type="text" id="equipmentName" placeholder="Equipment Name" required />
-      <input type="text" id="partNumber" placeholder="Part Number (optional)" />
-      <textarea id="issue" rows="4" placeholder="Describe the maintenance issue..." required></textarea>
-      <button type="submit">Post Question</button>
+  <div class="login-container">
+    <h1>Welcome to the Maintenance Forum</h1>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Log In</button>
+      <div class="message" id="message"></div>
     </form>
-    <h2>Community Questions</h2>
-    <div id="questionsContainer"></div>
-  </main>
-
-  <main id="solutionsSection" class="hidden">
-    <h2>Found Solutions</h2>
-    <div id="solutionContainer"></div>
-  </main>
-
-  <main id="questionDetailSection" class="hidden">
-    <h2>Proposed Solution</h2>
-    <div id="selectedQuestionDetail" class="solution-card"></div>
-    <div style="text-align: center;">
-      <button onclick="alert('Feature coming soon!')">Post a Solution</button>
-      <button onclick="alert('Viewing community solutions...')">Review Solutions</button>
-      <button onclick="showForum()">&larr; Return to Forum</button>
-    </div>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 Maintenance Forum</p>
-  </footer>
+  </div>
 
   <script>
     const SUPABASE_URL = 'https://pdsvautaqlszoaeeycbg.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkc3ZhdXRhcWxzem9hZWV5Y2JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyNjI2NDcsImV4cCI6MjA2NTgzODY0N30.uNtZVIzsMFNqytEGilsRLRehxyaNhQJGYfyVVAparGA';
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const questionForm = document.getElementById('questionForm');
-    const questionsContainer = document.getElementById('questionsContainer');
-    const solutionContainer = document.getElementById('solutionContainer');
+    const loginForm = document.getElementById('loginForm');
+    const messageDiv = document.getElementById('message');
 
-    function logout() {
-      alert("You have been logged out.");
-      window.location.href = "index.html";
-    }
-
-    function toggleView() {
-      document.getElementById("qaSection").classList.toggle("hidden");
-      document.getElementById("solutionsSection").classList.toggle("hidden");
-      document.getElementById("backButton").classList.toggle("hidden");
-      document.getElementById("foundSolutionsBtn").classList.toggle("hidden");
-    }
-
-    function showForum() {
-      document.getElementById("questionDetailSection").classList.add("hidden");
-      document.getElementById("qaSection").classList.remove("hidden");
-    }
-
-    function renderCard(q) {
-      const card = document.createElement('div');
-      card.className = 'question-card';
-      card.innerHTML = `
-        <div class="question-title">${q.equipment}</div>
-        ${q.part_number ? `<div class="question-meta">Part #: ${q.part_number}</div>` : ''}
-        <div class="question-meta">${new Date(q.timestamp).toLocaleString()}</div>
-        <p>${q.issue}</p>
-      `;
-      questionsContainer.appendChild(card);
-    }
-
-    questionForm.addEventListener('submit', async (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const equipment = document.getElementById('equipmentName').value.trim();
-      const partNumber = document.getElementById('partNumber').value.trim();
-      const issue = document.getElementById('issue').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-      const { error } = await client.from('questions').insert([
-        { equipment, part_number: partNumber, issue, timestamp: new Date().toISOString() }
-      ]);
+      const { error } = await client.auth.signInWithPassword({ email, password });
 
-      if (error) return alert("Failed to save question.");
-
-      alert("Question posted!");
-      questionForm.reset();
-      loadQuestions();
-    });
-
-    async function loadQuestions() {
-      const { data, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
-      if (!error && data) {
-        questionsContainer.innerHTML = '';
-        data.forEach(renderCard);
+      if (error) {
+        messageDiv.textContent = error.message;
+      } else {
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = 'Login successful! Redirecting...';
+        setTimeout(() => {
+          window.location.href = 'forum.html';
+        }, 1500);
       }
-    }
-
-    document.addEventListener('DOMContentLoaded', loadQuestions);
+    });
   </script>
 </body>
 </html>
