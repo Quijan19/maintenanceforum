@@ -353,21 +353,29 @@ const preloadedSolutions = preloadedQuestions.map(q => ({
   timestamp: new Date(new Date(q.timestamp).getTime() + 3600000).toISOString().split(".")[0] + "Z" // +1 hour
 }));
 
-    async function loadQuestions() {
-      const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
-      questionsContainer.innerHTML = '';
-      preloadedQuestions.forEach(renderCard);
-      if (realData) realData.forEach(renderCard);
-      for (let i = 0; i < 5; i++) {
-        const q = {
-          equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
-          part_number: "PN-" + Math.floor(Math.random() * 9999),
-          issue: issues[Math.floor(Math.random() * issues.length)],
-          timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
-        };
-        renderCard(q);
-      }
-    }
+ async function loadQuestions() {
+  const { data: realData, error } = await client.from('questions').select('*').order('timestamp', { ascending: false });
+
+  questionsContainer.innerHTML = '';
+
+  // 1. Render real questions first (most recent first)
+  if (realData) realData.forEach(renderCard);
+
+  // 2. Render preloaded demo questions next
+  preloadedQuestions.forEach(renderCard);
+
+  // 3. Add some random ones for variety
+  for (let i = 0; i < 5; i++) {
+    const q = {
+      equipment: equipmentTypes[Math.floor(Math.random() * equipmentTypes.length)],
+      part_number: "PN-" + Math.floor(Math.random() * 9999),
+      issue: issues[Math.floor(Math.random() * issues.length)],
+      timestamp: new Date(Date.now() - Math.random() * 1e10).toISOString()
+    };
+    renderCard(q);
+  }
+}
+
 
 function renderCard(q) {
   const card = document.createElement('div');
